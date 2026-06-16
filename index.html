@@ -42,6 +42,51 @@ function boost() {
 function openShop() {
     alert("Shop Coming Soon");
 }
-</script>
+</scr<script>
+let balance = localStorage.getItem("balance");
+let xp = localStorage.getItem("xp");
+let level = localStorage.getItem("level");
+
+if (balance === null) balance = 0;
+if (xp === null) xp = 0;
+if (level === null) level = 1;
+
+balance = parseInt(balance);
+xp = parseInt(xp);
+level = parseInt(level);
+
+function updateUI() {
+    document.getElementById("balance").innerText = balance;
+}
+
+function mine() {
+    let reward = Math.floor(Math.random() * 5) + 1;
+    balance += reward;
+    xp += 1;
+
+    // لول آپ
+    if (xp >= level * 10) {
+        level += 1;
+        xp = 0;
+        alert("LEVEL UP! 🎉 Level: " + level);
+    }
+
+    updateUI();
+
+    localStorage.setItem("balance", balance);
+    localStorage.setItem("xp", xp);
+    localStorage.setItem("level", level);
+}
+
+function boost() {
+    alert("Boost Activated!");
+}
+
+function openShop() {
+    alert("Shop Coming Soon");
+}
+
+updateUI();
+</script>ipt>
 </body>
 </html>
