@@ -3,85 +3,169 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TRAXEX CYBER MINER</title>
-</head>
+<title>TRAXEX PRO FULL</title>
 
-<body style="margin:0; font-family:Arial; background:#0f0f1a; color:white; text-align:center;">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-<h1 style="color:#00ffd5; margin-top:20px;">⚡ TRAXEX CYBER MINER</h1>
-
-<p>🔥 Site is working!</p>
-
-<div style="margin-top:20px;">
-  💰 Balance: <span id="balance">0</span> TRAXEX
-</div>
-
-<div style="margin-top:20px;">
-  🏆 Level: <span id="level">1</span>
-</div>
-
-<div style="margin-top:20px;">
-  ⭐ XP: <span id="xp">0</span>
-</div>
-
-<button onclick="mine()" style="margin-top:20px; padding:10px 20px;">
-MINE ⛏
-</button>
-
-<button onclick="boost()" style="margin-top:10px; padding:10px 20px;">
-BOOST ⚡
-</button>
-
-<button onclick="openShop()" style="margin-top:10px; padding:10px 20px;">
-SHOP 🛒
-</button>
-
-<script>
-let balance = localStorage.getItem("balance");
-let xp = localStorage.getItem("xp");
-let level = localStorage.getItem("level");
-
-if (balance === null) balance = 0;
-if (xp === null) xp = 0;
-if (level === null) level = 1;
-
-balance = parseInt(balance);
-xp = parseInt(xp);
-level = parseInt(level);
-
-function updateUI() {
-    document.getElementById("balance").innerText = balance;
-    document.getElementById("xp").innerText = xp;
-    document.getElementById("level").innerText = level;
+<style>
+body {
+    margin:0;
+    font-family:Arial;
+    background: radial-gradient(circle at top, #0f0f1a, #000);
+    color:white;
+    text-align:center;
 }
 
-function mine() {
-    let reward = Math.floor(Math.random() * 5) + 1;
-    balance += reward;
-    xp += 1;
+.header {
+    padding:18px;
+    color:#00ffd5;
+    font-size:20px;
+    font-weight:bold;
+}
 
-    if (xp >= level * 10) {
-        level += 1;
-        xp = 0;
-        alert("LEVEL UP! 🎉 Level: " + level);
+.card {
+    width:90%;
+    margin:10px auto;
+    padding:12px;
+    background:rgba(255,255,255,0.05);
+    border-radius:12px;
+    border:1px solid rgba(0,255,213,0.2);
+}
+
+.coin {
+    width:150px;
+    height:150px;
+    margin:20px auto;
+    border-radius:50%;
+    background:radial-gradient(circle,#00ffd5,#0066ff);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:black;
+    font-weight:bold;
+    cursor:pointer;
+    box-shadow:0 0 25px #00ffd5;
+}
+
+button {
+    width:90%;
+    padding:12px;
+    margin:6px;
+    border:none;
+    border-radius:10px;
+    font-weight:bold;
+    background:linear-gradient(90deg,#00ffd5,#0066ff);
+}
+
+/* BINARY TREE */
+.tree {
+    margin-top:15px;
+}
+
+.node {
+    display:inline-block;
+    padding:10px;
+    margin:5px;
+    border-radius:10px;
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(0,255,213,0.2);
+    min-width:80px;
+}
+
+/* SHOP */
+.shop {
+    display:none;
+    margin-top:10px;
+}
+
+.item {
+    padding:10px;
+    margin:8px;
+    border-radius:10px;
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(0,255,213,0.2);
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">⚡ TRAXEX PRO FULL SYSTEM</div>
+
+<div class="card">
+👤 User: <span id="user">loading...</span><br>
+💰 Balance: <span id="balance">0</span><br>
+🌳 Left: <span id="left">0</span> | Right: <span id="right">0</span>
+</div>
+
+<div class="coin" onclick="mine()">MINE</div>
+
+<!-- BINARY -->
+<div class="tree">
+<div class="node">YOU</div><br>
+<div class="node">LEFT <span id="l"></span></div>
+<div class="node">RIGHT <span id="r"></span></div>
+</div>
+
+<button onclick="openShop()">🛒 SHOP</button>
+<button onclick="boost()">⚡ BOOST</button>
+
+<!-- SHOP -->
+<div class="shop" id="shop">
+<div class="item">⚡ 2x Mining Power — 0.5 TON (soon)</div>
+<div class="item">💎 VIP — 1 TON (soon)</div>
+<div class="item">🔥 Auto Miner — 2 TON (soon)</div>
+</div>
+
+<script>
+let tg = window.Telegram.WebApp;
+tg.expand();
+
+let user = tg.initDataUnsafe?.user?.id || "demo";
+document.getElementById("user").innerText = user;
+
+// DATA
+let balance = localStorage.getItem("balance") || 0;
+let left = localStorage.getItem("left") || 0;
+let right = localStorage.getItem("right") || 0;
+
+balance = parseInt(balance);
+left = parseInt(left);
+right = parseInt(right);
+
+// UPDATE UI
+function update(){
+    document.getElementById("balance").innerText = balance;
+    document.getElementById("l").innerText = left;
+    document.getElementById("r").innerText = right;
+}
+
+function mine(){
+    balance += Math.floor(Math.random()*5)+1;
+
+    // binary logic
+    if(Math.random() > 0.5){
+        left++;
+    } else {
+        right++;
     }
 
     localStorage.setItem("balance", balance);
-    localStorage.setItem("xp", xp);
-    localStorage.setItem("level", level);
+    localStorage.setItem("left", left);
+    localStorage.setItem("right", right);
 
-    updateUI();
+    update();
 }
 
-function boost() {
-    alert("Boost Activated!");
+function openShop(){
+    document.getElementById("shop").style.display = "block";
 }
 
-function openShop() {
-    alert("Shop Coming Soon");
+function boost(){
+    alert("Boost system coming soon ⚡");
 }
 
-updateUI();
+update();
 </script>
 
 </body>
