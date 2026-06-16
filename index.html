@@ -15,6 +15,33 @@
 <div style="margin-top:30px;">
   💰 Balance: 0 TRAXEX
 </div>
+<script>
+let balance = localStorage.getItem("balance");
 
+if (balance === null) {
+    balance = 0;
+} else {
+    balance = parseInt(balance);
+}
+
+document.getElementById("balance").innerText = balance;
+
+function mine() {
+    let reward = Math.floor(Math.random() * 5) + 1;
+    balance += reward;
+
+    document.getElementById("balance").innerText = balance;
+
+    localStorage.setItem("balance", balance);
+}
+
+function boost() {
+    alert("Boost Activated!");
+}
+
+function openShop() {
+    alert("Shop Coming Soon");
+}
+</script>
 </body>
 </html>
