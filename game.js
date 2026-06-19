@@ -1,13 +1,12 @@
-// --- بخش اول: موجودی و کارت‌های پایه ---
 let balanceTRX = 0;
 let balanceTON = 0;
 
-let items = Array.from({ length: 12 }, (_, i) => ({
-    id: i + 1,
-    name: `Item ${i + 1}`,
-    level: 1, 
-    baseCost: 1000 
-}));
+let items = Array.from({ length: 12 }, (_, i) => ({ id: i + 1, level: 1, baseCost: 1000 }));
+let specialItems = { 
+    soulkeeper: { level: 0, name: "Soulkeeper" }, 
+    rexar: { level: 0, name: "Rexar" }, 
+    zeus: 0 
+};
 
 function mine() {
     let multiplier = 1;
@@ -18,52 +17,30 @@ function mine() {
 
 function buyItem(id) {
     let item = items.find(i => i.id === id);
-    let currentCost = item.baseCost * Math.pow(2, item.level - 1);
-
-    if (balanceTRX >= currentCost) {
-        balanceTRX -= currentCost;
+    let cost = item.baseCost * Math.pow(2, item.level - 1);
+    if (balanceTRX >= cost) {
+        balanceTRX -= cost;
         item.level++;
-        alert("آیتم پایه ارتقا یافت!");
-    } else {
-        alert("ترکس کافی نیست!");
-    }
+        renderShop();
+    } else { alert("ترکس کافی نیست!"); }
 }
-
-// --- بخش دوم: کارت‌های خاص و زئوس ---
-let specialItems = {
-    soulkeeper: { level: 0, name: "Soulkeeper" },
-    rexar: { level: 0, name: "Rexar" },
-    zeus: 0
-};
 
 function upgradeSpecial(name) {
     let item = specialItems[name];
-    let costs = [10, 20, 40]; 
-    
-    if (item.level < 3) {
-        let cost = costs[item.level];
-        if (balanceTON >= cost) {
-            balanceTON -= cost;
-            item.level++;
-            alert(name + " به لول " + item.level + " ارتقا یافت!");
-        } else {
-            alert("موجودی TON کافی نیست!");
-        }
-    } else {
-        alert("این کارت به حداکثر لول رسیده است.");
-    }
+    let costs = [10, 20, 40];
+    if (item.level < 3 && balanceTON >= costs[item.level]) {
+        balanceTON -= costs[item.level];
+        item.level++;
+        renderShop();
+    } else { alert("موجودی TON کافی نیست یا به لول نهایی رسیده!"); }
 }
 
 function craftZeus() {
-    let sk = specialItems.soulkeeper;
-    let rx = specialItems.rexar;
-
-    if (sk.level === 3 && rx.level === 3) {
-        sk.level = 0;
-        rx.level = 0;
-        specialItems.zeus++; 
-        alert("تبریک! زئوس احضار شد! کارت‌های Soulkeeper و Rexar سوختند.");
-    } else {
-        alert("برای احضار زئوس، هر دو کارت باید لول ۳ باشند.");
-    }
+    if (specialItems.soulkeeper.level === 3 && specialItems.rexar.level === 3) {
+        specialItems.soulkeeper.level = 0;
+        specialItems.rexar.level = 0;
+        specialItems.zeus++;
+        renderShop();
+        alert("زئوس ساخته شد!");
+    } else { alert("هر دو کارت باید لول ۳ باشند."); }
 }
