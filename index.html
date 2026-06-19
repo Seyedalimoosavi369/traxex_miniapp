@@ -2,38 +2,59 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TRAXEX PRO</title>
     <style>
-        body { margin: 0; background: radial-gradient(circle, #1a1a2e, #06060c); color: white; font-family: 'Arial', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        .balance-container { text-align: center; margin-bottom: 30px; }
-        #balance { font-size: 3rem; font-weight: bold; color: #00ffd5; text-shadow: 0 0 10px #00ffd5; }
-        .coin { width: 200px; height: 200px; background: linear-gradient(135deg, #00ffd5, #008f7a); border-radius: 50%; box-shadow: 0 0 30px rgba(0, 255, 213, 0.4); cursor: pointer; transition: transform 0.1s; display: flex; align-items: center; justify-content: center; }
-        .coin:active { transform: scale(0.95); }
-        .footer-nav { position: fixed; bottom: 0; width: 100%; display: flex; justify-content: space-around; padding: 15px; background: #161625; }
-        .nav-item { color: #888; font-size: 14px; }
+        body { margin: 0; background: #05070a; color: white; font-family: Arial, sans-serif; height: 100vh; display: flex; flex-direction: column; }
+        .content { flex: 1; overflow-y: auto; padding-bottom: 80px; text-align: center; }
+        
+        /* استایل‌های اصلی */
+        .header-avatar { width: 80px; height: 80px; border-radius: 50%; margin: 20px auto; border: 2px solid #00f2ff; }
+        .main-button { width: 250px; height: 250px; border-radius: 50%; border: 4px solid #00f2ff; margin: 20px auto; cursor: pointer; overflow: hidden; }
+        .main-button img { width: 100%; height: 100%; object-fit: cover; }
+        
+        /* استایل منو پایین */
+        .nav-bar { position: fixed; bottom: 0; width: 100%; background: #0f1219; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #1e2538; }
+        .nav-item { font-size: 12px; color: #718096; cursor: pointer; }
+        .nav-item:hover { color: #00f2ff; }
+        
+        /* جداکننده صفحات */
+        .page { display: none; padding: 20px; }
+        .active-page { display: block; }
+        .card { background: #11141d; padding: 15px; border-radius: 15px; margin: 10px; border: 1px solid #1e2538; }
     </style>
 </head>
 <body>
-    <div class="balance-container">
-        <div>موجودی TRAX</div>
-        <div id="balance">0</div>
-    </div>
-    
-    <div class="coin" onclick="mine()">TAP</div>
 
-    <div class="footer-nav">
-        <div class="nav-item">🏠 خانه</div>
-        <div class="nav-item">👥 رفرال</div>
-        <div class="nav-item">🏆 لیدربورد</div>
+    <div id="home" class="page active-page">
+        <div class="header-avatar" style="background: url('traxex.jpg') center/cover;"></div>
+        <div id="balance" style="font-size: 30px; font-weight: bold;">10,235,456</div>
+        <div class="main-button" onclick="mine()">
+            <img src="traxex.jpg" alt="Traxex">
+        </div>
+    </div>
+
+    <div id="shop" class="page">
+        <h2>فروشگاه تجهیزات</h2>
+        <div class="card">کلنگ نقره‌ای - 500 TON</div>
+        <div class="card">صندوق جادویی - 1000 TON</div>
+    </div>
+
+    <div id="nav" class="nav-bar">
+        <div class="nav-item" onclick="showPage('home')">🏠<br>Home</div>
+        <div class="nav-item" onclick="showPage('shop')">🛒<br>Shop</div>
+        <div class="nav-item">⛏️<br>Mine</div>
+        <div class="nav-item">👥<br>Friends</div>
+        <div class="nav-item">👤<br>Profile</div>
     </div>
 
     <script>
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+            document.getElementById(pageId).style.display = 'block';
+        }
         function mine() {
-            let balanceEl = document.getElementById('balance');
-            let current = parseInt(balanceEl.innerText);
-            balanceEl.innerText = current + 1;
-            // اینجا بعداً کد ذخیره در دیتابیس را اضافه می‌کنیم
+            let b = document.getElementById('balance');
+            b.innerText = parseInt(b.innerText.replace(/,/g, '')) + 10;
         }
     </script>
 </body>
