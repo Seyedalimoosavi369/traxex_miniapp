@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>TRAXEX PRO</title>
-    <!-- استایل‌ها -->
     <link rel="stylesheet" href="style.css"> 
 </head>
 <body>
     <div id="app">
-        <!-- اینجا محتوای صفحات لود می‌شود -->
         <div id="home" class="page active-page">
             <div id="balance">0</div>
             <div class="btn-mine" onclick="mine()"></div>
@@ -19,7 +17,11 @@
         </div>
     </div>
     
-    <!-- لود کردن منطق بازی -->
     <script src="game.js"></script>
+    <script src="ui.js"></script>
+    <script>
+        // برای اینکه به محض باز شدن سایت، فروشگاه لود شود
+        document.addEventListener("DOMContentLoaded", renderShop);
+    </script>
 </body>
 </html>
