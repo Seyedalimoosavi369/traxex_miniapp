@@ -3,72 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <title>TRAXEX PRO</title>
-    <style>
-        body { margin: 0; background: #05070a; color: white; font-family: 'Segoe UI', sans-serif; }
-        .page { display: none; padding: 20px; padding-bottom: 80px; }
-        .active-page { display: block; }
-        .nav-bar { position: fixed; bottom: 0; width: 100%; background: #0f1219; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #1e2538; }
-        .card { background: #11141d; border: 1px solid #2d3748; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        button { background: #6366f1; border: none; color: white; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
-    </style>
+    <!-- استایل‌ها -->
+    <link rel="stylesheet" href="style.css"> 
 </head>
 <body>
-
-<div id="home" class="page active-page">
-    <div style="text-align: center;">
-        <h1 id="balance">0</h1>
-        <div style="width: 200px; height: 200px; border-radius: 50%; background: url('traxex.jpg') center/cover; margin: 20px auto; border: 4px solid #00f2ff;" onclick="mine()"></div>
+    <div id="app">
+        <!-- اینجا محتوای صفحات لود می‌شود -->
+        <div id="home" class="page active-page">
+            <div id="balance">0</div>
+            <div class="btn-mine" onclick="mine()"></div>
+        </div>
+        <div id="shop" class="page">
+            <h2>Upgrade Items</h2>
+            <div id="shop-items"></div>
+        </div>
     </div>
-</div>
-
-<div id="shop" class="page">
-    <h2>Upgrade Items</h2>
-    <div id="items-list"></div>
-</div>
-
-<div class="nav-bar">
-    <div class="nav-item" onclick="showPage('home')">🏠 Home</div>
-    <div class="nav-item" onclick="showPage('shop')">🛒 Upgrade</div>
-</div>
-
-<script>
-    const items = [
-        { id: 1, name: "Shadow Shard", basePrice: 10000000, level: 1 },
-        { id: 2, name: "Void Spark", basePrice: 10000000, level: 1 },
-        // ... این لیست را برای هر ۳۰ آیتم کامل کن
-    ];
-
-    function renderShop() {
-        const list = document.getElementById('items-list');
-        list.innerHTML = items.map(item => {
-            let cost = item.basePrice * Math.pow(2, item.level - 1);
-            return `
-                <div class="card">
-                    <div><b>${item.name}</b><br><small>Level: ${item.level}</small></div>
-                    <button onclick="upgrade(${item.id})">${cost.toLocaleString()} TRX</button>
-                </div>
-            `;
-        }).join('');
-    }
-
-    function upgrade(id) {
-        let item = items.find(i => i.id === id);
-        let cost = item.basePrice * Math.pow(2, item.level - 1);
-        // اینجا منطق کسر از موجودی اضافه می‌شود
-        item.level++;
-        renderShop();
-    }
-
-    function mine() {
-        document.getElementById('balance').innerText = parseInt(document.getElementById('balance').innerText) + 10;
-    }
-
-    function showPage(id) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
-        document.getElementById(id).classList.add('active-page');
-    }
-
-    renderShop();
-</script>
+    
+    <!-- لود کردن منطق بازی -->
+    <script src="game.js"></script>
 </body>
 </html>
