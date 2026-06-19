@@ -5,7 +5,7 @@ function renderShop() {
     items.forEach(item => {
         shopContainer.innerHTML += `
             <div class="card">
-                <strong>Item ${item.id}</strong> - Level: ${item.level}
+                <div><strong>Item ${item.id}</strong><br>Level: ${item.level}</div>
                 <button onclick="buyItem(${item.id})">Buy</button>
             </div>`;
     });
@@ -14,7 +14,7 @@ function renderShop() {
         if (key !== 'zeus') {
             shopContainer.innerHTML += `
                 <div class="card" style="border: 2px solid gold;">
-                    <strong>${specialItems[key].name}</strong> - Level: ${specialItems[key].level}
+                    <div><strong>${specialItems[key].name}</strong><br>Level: ${specialItems[key].level}</div>
                     <button onclick="upgradeSpecial('${key}')">Upgrade TON</button>
                 </div>`;
         }
@@ -22,7 +22,7 @@ function renderShop() {
 
     shopContainer.innerHTML += `
         <div class="card" style="border: 2px solid cyan;">
-            <strong>Zeus Count: ${specialItems.zeus}</strong>
+            <div><strong>Zeus Count: ${specialItems.zeus}</strong></div>
             <button onclick="craftZeus()">Craft</button>
         </div>`;
 }
