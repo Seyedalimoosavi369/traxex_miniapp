@@ -1,7 +1,8 @@
 body { margin: 0; background: #05070a; color: white; font-family: sans-serif; }
 .page { display: none; padding: 20px; }
 .active-page { display: block; }
-.btn-mine { width: 220px; height: 220px; border-radius: 50%; background: #222; margin: 40px auto; cursor: pointer; }
-.card { background: #11141d; padding: 15px; border-radius: 15px; margin: 10px; display: flex; justify-content: space-between; align-items: center; }
-.nav-menu { position: fixed; bottom: 0; width: 100%; background: #000; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #333; }
-button { cursor: pointer; padding: 8px 15px; }
+#home { text-align: center; }
+.btn-mine { width: 200px; height: 200px; background: #f39c12; border-radius: 50%; margin: 50px auto; cursor: pointer; border: 5px solid #fff; }
+.card { background: #1a1f2e; padding: 15px; border-radius: 15px; margin: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #333; }
+.nav-menu { position: fixed; bottom: 0; width: 100%; background: #000; display: flex; justify-content: space-around; padding: 15px 0; border-top: 2px solid #333; }
+button { cursor: pointer; padding: 10px; border-radius: 5px; border: none; background: #3498db; color: white; }
