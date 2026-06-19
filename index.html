@@ -1,44 +1,39 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TRAXEX PRO</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { background: #06060c; color: white; text-align: center; font-family: Arial, sans-serif; }
-        .card { background: #1a1a2e; padding: 20px; border-radius: 15px; margin: 20px; }
-        button { padding: 15px 30px; background: #00ffd5; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; color: #06060c; }
+        body { margin: 0; background: radial-gradient(circle, #1a1a2e, #06060c); color: white; font-family: 'Arial', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        .balance-container { text-align: center; margin-bottom: 30px; }
+        #balance { font-size: 3rem; font-weight: bold; color: #00ffd5; text-shadow: 0 0 10px #00ffd5; }
+        .coin { width: 200px; height: 200px; background: linear-gradient(135deg, #00ffd5, #008f7a); border-radius: 50%; box-shadow: 0 0 30px rgba(0, 255, 213, 0.4); cursor: pointer; transition: transform 0.1s; display: flex; align-items: center; justify-content: center; }
+        .coin:active { transform: scale(0.95); }
+        .footer-nav { position: fixed; bottom: 0; width: 100%; display: flex; justify-content: space-around; padding: 15px; background: #161625; }
+        .nav-item { color: #888; font-size: 14px; }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h1>TRAXEX PRO</h1>
-        <p>موجودی فعلی: <span id="balance">0</span></p>
-        <button onclick="mine()">استخراج امتیاز</button>
+    <div class="balance-container">
+        <div>موجودی TRAX</div>
+        <div id="balance">0</div>
+    </div>
+    
+    <div class="coin" onclick="mine()">TAP</div>
+
+    <div class="footer-nav">
+        <div class="nav-item">🏠 خانه</div>
+        <div class="nav-item">👥 رفرال</div>
+        <div class="nav-item">🏆 لیدربورد</div>
     </div>
 
     <script>
-        // اطلاعات اتصال به دیتابیس تو
-        const SUPABASE_URL = "https://newhziflynnfljxhshkk.supabase.co";
-        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ld2h6aWZseW5uZmxqeGhzaGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4NzIyNTQsImV4cCI6MjA5NzQ0ODI1NH0.5TNZuQuuAO9DwPa8c6Oxfif6hiTe3d1xFKe9AVmwcg0";
-        
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        
-        // آیدی فرضی کاربر (در تلگرام، آیدی واقعی جایگزین می‌شود)
-        let tgUser = 12345; 
-        
-        // تابع استخراج امتیاز
-        async function mine() {
-            // خواندن موجودی فعلی
-            let { data } = await supabase.from('users').select('balance').eq('telegram_id', tgUser).single();
-            let newBalance = (data ? data.balance : 0) + 10;
-
-            // آپدیت کردن در دیتابیس
-            await supabase.from('users').upsert({ telegram_id: tgUser, balance: newBalance });
-            
-            document.getElementById('balance').innerText = newBalance;
-            alert("امتیاز با موفقیت در دیتابیس ثبت شد!");
+        function mine() {
+            let balanceEl = document.getElementById('balance');
+            let current = parseInt(balanceEl.innerText);
+            balanceEl.innerText = current + 1;
+            // اینجا بعداً کد ذخیره در دیتابیس را اضافه می‌کنیم
         }
     </script>
 </body>
