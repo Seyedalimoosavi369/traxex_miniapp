@@ -8,7 +8,7 @@
 <body>
     <div id="app">
         <div id="home" class="page active-page">
-            <div id="balance">0</div>
+            <div id="balance" style="text-align: center; font-size: 40px; margin: 20px;">0</div>
             <div class="btn-mine" onclick="mine()"></div>
         </div>
         <div id="shop" class="page">
@@ -16,12 +16,20 @@
             <div id="shop-items"></div>
         </div>
     </div>
-    
+
+    <div class="nav-menu">
+        <button onclick="showPage('home')">خانه</button>
+        <button onclick="showPage('shop')">فروشگاه</button>
+    </div>
+
     <script src="game.js"></script>
     <script src="ui.js"></script>
     <script>
-        // برای اینکه به محض باز شدن سایت، فروشگاه لود شود
         document.addEventListener("DOMContentLoaded", renderShop);
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+            document.getElementById(pageId).style.display = 'block';
+        }
     </script>
 </body>
 </html>
