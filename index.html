@@ -3,182 +3,326 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TRAXEX PRO FULL</title>
+<title>TRAXEX PREMIUM MINER</title>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 
 <style>
+* {
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
 body {
-    margin:0;
-    font-family:Arial, sans-serif;
-    background: radial-gradient(circle at top, #0f0f1a, #000);
-    color:white;
-    text-align:center;
-    padding-bottom: 30px;
+    margin: 0;
+    padding: 0;
+    background: radial-gradient(circle at top, #1a102f, #050508);
+    color: #ffffff;
+    text-align: center;
+    padding-bottom: 40px;
+    overflow-x: hidden;
 }
 
 .header {
-    padding:18px;
-    color:#00ffd5;
-    font-size:20px;
-    font-weight:bold;
-    text-shadow: 0 0 10px rgba(0, 255, 213, 0.5);
-}
-
-.card {
-    width:90%;
-    margin:10px auto;
-    padding:15px;
-    background:rgba(255,255,255,0.05);
-    border-radius:12px;
-    border:1px solid rgba(0,255,213,0.2);
-    text-align: left;
-    line-height: 1.6;
-}
-
-.coin {
-    width:150px;
-    height:150px;
-    margin:25px auto;
-    border-radius:50%;
-    background:radial-gradient(circle,#00ffd5,#0066ff);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:black;
-    font-weight:bold;
-    font-size: 22px;
-    cursor:pointer;
-    box-shadow:0 0 30px #00ffd5;
-    transition: transform 0.1s ease;
-    user-select: none;
-    -webkit-user-select: none;
-}
-.coin:active {
-    transform: scale(0.95);
-}
-
-button {
-    width:90%;
-    padding:12px;
-    margin:6px;
-    border:none;
-    border-radius:10px;
-    font-weight:bold;
-    background:linear-gradient(90deg,#00ffd5,#0066ff);
-    color: white;
-    font-size: 15px;
-    cursor: pointer;
-}
-
-/* BINARY TREE */
-.tree {
-    margin: 20px auto;
-    width: 90%;
-}
-
-.node {
-    display:inline-block;
-    padding:10px;
-    margin:5px;
-    border-radius:10px;
-    background:rgba(255,255,255,0.05);
-    border:1px solid rgba(0,255,213,0.2);
-    min-width:90px;
-    font-weight: bold;
-}
-
-/* SHOP */
-.shop {
-    display:none;
-    margin:15px auto;
-    width: 90%;
-}
-
-.item {
-    padding:15px;
-    margin:10px 0;
-    border-radius:10px;
-    background:rgba(255,255,255,0.03);
-    border:1px solid rgba(0,255,213,0.15);
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    align-items: center;
-    text-align: center;
-}
-
-.btn-ton-pay {
-    background: linear-gradient(135deg, #0088cc 0%, #00aaff 100%);
-    color: white;
-    padding: 8px 20px;
-    border-radius: 8px;
-    font-size: 13px;
-    cursor: pointer;
-    width: auto;
-    margin: 0;
-    box-shadow: 0 4px 10px rgba(0, 136, 204, 0.3);
+    padding: 25px 10px 10px 10px;
+    color: #00ffd5;
+    font-size: 24px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 0 15px rgba(0, 255, 213, 0.6);
 }
 
 #ton-connect-button {
     display: flex;
     justify-content: center;
-    margin: 15px 0;
+    margin: 10px 0 20px 0;
+}
+
+.card {
+    width: 90%;
+    margin: 15px auto;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 16px;
+    border: 1px solid rgba(0, 255, 213, 0.15);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    text-align: left;
+}
+
+.card-title {
+    color: #0088cc;
+    font-weight: bold;
+    margin-bottom: 10px;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    margin: 8px 0;
+    font-size: 16px;
+}
+
+.stat-value {
+    font-weight: bold;
+    color: #fff;
+}
+
+.coin-container {
+    perspective: 1000px;
+    margin: 30px auto;
+}
+
+.coin {
+    width: 170px;
+    height: 170px;
+    margin: 0 auto;
+    border-radius: 50%;
+    background: radial-gradient(circle, #00ffd5 0%, #0066ff 70%, #1a0033 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-weight: 900;
+    font-size: 26px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    box-shadow: 0 0 40px rgba(0, 255, 213, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.6);
+    border: 4px solid rgba(0, 255, 213, 0.4);
+    transition: transform 0.05s ease, box-shadow 0.1s ease;
+    user-select: none;
+    -webkit-user-select: none;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.coin:active {
+    transform: scale(0.92);
+    box-shadow: 0 0 20px rgba(0, 255, 213, 0.8), inset 0 0 10px rgba(255, 255, 255, 0.4);
+}
+
+/* BINARY TREE DESIGN */
+.tree {
+    margin: 25px auto;
+    width: 90%;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 102, 255, 0.15);
+}
+
+.node-main {
+    display: inline-block;
+    padding: 8px 20px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #00ffd5 0%, #0066ff 100%);
+    color: #000;
+    font-weight: 800;
+    font-size: 14px;
+    box-shadow: 0 0 15px rgba(0, 255, 213, 0.3);
+}
+
+.tree-line {
+    color: #0066ff;
+    font-size: 20px;
+    margin: 2px 0;
+    line-height: 1;
+}
+
+.branches {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 5px;
+}
+
+.node-branch {
+    width: 45%;
+    padding: 10px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 13px;
+}
+
+.branch-name {
+    color: #aaa;
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.branch-count {
+    font-size: 18px;
+    font-weight: bold;
+    color: #00ffd5;
+}
+
+/* BUTTONS */
+.action-btn {
+    width: 90%;
+    padding: 15px;
+    margin: 8px auto;
+    border: none;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    display: block;
+    transition: all 0.2s ease;
+}
+
+.btn-shop {
+    background: linear-gradient(90deg, #00ffd5, #0066ff);
+    color: #050508;
+    box-shadow: 0 4px 15px rgba(0, 255, 213, 0.2);
+}
+
+.btn-boost {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.btn-boost:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* SHOP */
+.shop {
+    display: none;
+    margin: 20px auto;
+    width: 90%;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.item {
+    padding: 18px;
+    margin: 12px 0;
+    border-radius: 14px;
+    background: linear-gradient(145deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.05) 100%);
+    border: 1px solid rgba(0, 255, 213, 0.1);
+    text-align: left;
+}
+
+.item-info {
+    margin-bottom: 12px;
+}
+
+.item-title {
+    font-weight: bold;
+    color: #00ffd5;
+    font-size: 16px;
+    display: block;
+}
+
+.item-desc {
+    font-size: 12px;
+    color: #aaa;
+    display: block;
+    margin-top: 3px;
+}
+
+.btn-ton-pay {
+    background: #0088cc;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(0, 136, 204, 0.3);
+    transition: background 0.2s;
+}
+.btn-ton-pay:active {
+    background: #006699;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">⚡ TRAXEX PRO FULL SYSTEM</div>
+<div class="header">⚡ TRAXEX MINER PRO</div>
 
 <div id="ton-connect-button"></div>
 
 <div class="card">
-👤 <b>User ID:</b> <span id="user">loading...</span><br>
-💰 <b>Balance:</b> <span id="balance">0</span> TRAX<br>
-🌳 <b>Left Network:</b> <span id="left">0</span> | <b>Right Network:</b> <span id="right">0</span>
+    <div class="card-title">NETWORK ACCOUNT INFO</div>
+    <div class="stat-row">
+        <span>👤 User ID:</span>
+        <span class="stat-value" id="user">loading...</span>
+    </div>
+    <div class="stat-row">
+        <span>💰 Balance:</span>
+        <span class="stat-value" style="color: #00ffd5;"><span id="balance">0</span> TRAX</span>
+    </div>
 </div>
 
-<div class="coin" onclick="mine()">MINE</div>
+<div class="coin-container">
+    <div class="coin" onclick="mine()">MINE</div>
+</div>
 
+<!-- MODERN BINARY TREE -->
 <div class="tree">
-    <div class="node" style="border-color: #00ffd5;">YOU</div><br>
-    <div style="margin: 5px 0; color: #0066ff;">│</div>
-    <div class="node">LEFT: <span id="l">0</span></div>
-    <div class="node">RIGHT: <span id="r">0</span></div>
+    <div class="node-main">YOU</div>
+    <div class="tree-line">│</div>
+    <div class="branches">
+        <div class="node-branch" style="border-color: rgba(0, 255, 213, 0.3);">
+            <span class="branch-name">Left Branch</span>
+            <span class="branch-count" id="l">0</span>
+        </div>
+        <div class="node-branch" style="border-color: rgba(0, 102, 255, 0.3);">
+            <span class="branch-name">Right Branch</span>
+            <span class="branch-count" id="r">0</span>
+        </div>
+    </div>
 </div>
 
-<button onclick="openShop()">🛒 OPEN HARDWARE SHOP</button>
-<button onclick="boost()">⚡ ACTIVATE BOOST</button>
+<button class="action-btn btn-shop" onclick="openShop()">🛒 OPEN HARDWARE SHOP</button>
+<button class="action-btn btn-boost" onclick="boost()">⚡ BOOST SPEED (SOON)</button>
 
+<!-- SHOP OVERLAY -->
 <div class="shop" id="shop">
     <div class="item">
-        <span style="font-weight: bold; color: #00ffd5;">⚡ 2x Mining Power</span>
-        <span style="font-size: 12px; color: #aaa;">سرعت استخراج شما را دو برابر می‌کند.</span>
+        <div class="item-info">
+            <span class="item-title">⚡ 2x Mining Power</span>
+            <span class="item-desc">Doubles your mining calculation speed instantly.</span>
+        </div>
         <button class="btn-ton-pay" onclick="buyItem('2x_boost', 0.5)">0.5 TON</button>
     </div>
     <div class="item">
-        <span style="font-weight: bold; color: #00ffd5;">💎 VIP Account Status</span>
-        <span style="font-size: 12px; color: #aaa;">دسترسی به استخر استخراج ویژه اعضا.</span>
+        <span class="item-info">
+            <span class="item-title">💎 VIP Account Membership</span>
+            <span class="item-desc">Unlocks exclusive access to high-yield mining pools.</span>
+        </span>
         <button class="btn-ton-pay" onclick="buyItem('vip', 1.0)">1.0 TON</button>
     </div>
     <div class="item">
-        <span style="font-weight: bold; color: #00ffd5;">🔥 AI Auto Miner Worker</span>
-        <span style="font-size: 12px; color: #aaa;">استخراج خودکار حتی زمان بستن تلگرام.</span>
+        <span class="item-info">
+            <span class="item-title">🔥 AI Auto-Miner Drone</span>
+            <span class="item-desc">Automated script mines for you 24/7 even when offline.</span>
+        </span>
         <button class="btn-ton-pay" onclick="buyItem('auto_miner', 2.0)">2.0 TON</button>
     </div>
 </div>
 
 <script>
-// تنظیمات اولیه کلاینت متصل به شبکه رسمی TON
 const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
     manifestUrl: 'https://ton-connect.github.io/demo-dapp-with-react/tonconnect-manifest.json',
     buttonRootId: 'ton-connect-button'
 });
 
-// آدرس ولت اختصاصی تایید شده شما
 let MY_TON_WALLET = "UQCs20TzgI5bmr5TJo3PigiEn0DMJhWktPOw7bo27K2FVZwI";
 
 let tg = window.Telegram.WebApp;
@@ -187,7 +331,6 @@ tg.expand();
 let user = tg.initDataUnsafe?.user?.id || "Demo Account";
 document.getElementById("user").innerText = user;
 
-// دیتای لوکال برای ذخیره مقدار کوین‌ها
 let balance = localStorage.getItem("balance") || 0;
 let left = localStorage.getItem("left") || 0;
 let right = localStorage.getItem("right") || 0;
@@ -200,15 +343,11 @@ function update(){
     document.getElementById("balance").innerText = balance.toLocaleString();
     document.getElementById("l").innerText = left;
     document.getElementById("r").innerText = right;
-    document.getElementById("left").innerText = left;
-    document.getElementById("r").innerText = right;
-    document.getElementById("right").innerText = right;
 }
 
 function mine(){
     balance += Math.floor(Math.random()*5)+1;
 
-    // منطق شاخه‌های درخت باینری دودویی
     if(Math.random() > 0.5){
         left++;
     } else {
@@ -233,13 +372,12 @@ function openShop(){
 }
 
 function boost(){
-    alert("سیستم تقویت‌کننده به زودی در آپدیت بعدی فعال می‌شود ⚡");
+    alert("Boost upgrade system will be available in the next network release ⚡");
 }
 
-// تابع هوشمند انتقال ارز مستقیم به خزانه شما
 async function buyItem(itemName, tonAmount) {
     if (!tonConnectUI.connected) {
-        alert("لطفاً ابتدا از بالای صفحه کیف پول خود را متصل کنید!");
+        alert("Please connect your TON wallet first using the button at the top!");
         return;
     }
 
@@ -248,16 +386,16 @@ async function buyItem(itemName, tonAmount) {
         messages: [
             {
                 address: MY_TON_WALLET,
-                amount: (tonAmount * 1000000000).toString() // تبدیل اتمیک به نانوتون
+                amount: (tonAmount * 1000000000).toString()
             }
         ]
     };
 
     try {
         await tonConnectUI.sendTransaction(transaction);
-        alert("تراکنش با موفقیت انجام شد! مقدار " + tonAmount + " TON به حساب مدیر واریز شد.");
+        alert("Transaction successful! " + tonAmount + " TON sent directly to the owner wallet.");
     } catch (e) {
-        alert("تراکنش توسط کاربر لغو شد یا موجودی ولت کافی نیست.");
+        alert("Transaction cancelled or failed due to insufficient funds.");
     }
 }
 
