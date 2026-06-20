@@ -1,63 +1,37 @@
-// ۱. لیستِ کاملِ ۱۲ آیتم
-const shopItems = [
+console.log("TRAX System Loaded - Version 2.0");
+
+// ساختار ۱۲ آیتم شما
+const itemsData = [
     { id: 1, name: "Iron Pickaxe" }, { id: 2, name: "Bronze Drill" }, { id: 3, name: "Silver Chisel" },
     { id: 4, name: "Gold Hammer" }, { id: 5, name: "Platinum Blade" }, { id: 6, name: "Diamond Cutter" },
     { id: 7, name: "Titanium Axe" }, { id: 8, name: "Ruby Saw" }, { id: 9, name: "Emerald Shovel" },
     { id: 10, name: "Sapphire Pick" }, { id: 11, name: "Obsidian Maul" }, { id: 12, name: "Void Breaker" }
 ];
 
-// ۲. وضعیتِ برنامه
-let game = JSON.parse(localStorage.getItem('gameData')) || {
-    items: shopItems.map(i => ({ ...i, level: 0, priceTRX: 1000, priceTON: 1 })),
-    rexar: { level: 0, unlocked: false, priceTON: 10 },
-    soul: { level: 0, unlocked: false, priceTON: 10 },
-    zeus: { level: 0, unlocked: false, priceTON: 100 },
-    balanceTRX: 0,
-    balanceTON: 0
-};
+function updateShopUI() {
+    const shopContainer = document.getElementById('shop-items');
+    if (!shopContainer) return;
 
-// ۳. تابعِ خرید (با قانونِ ضرب در ۲)
-function buyItem(type, id, currency) {
-    let target = (type === 'normal') ? game.items.find(i => i.id === id) : game[type];
-    let cost = (currency === 'TON') ? target.priceTON : target.priceTRX;
+    shopContainer.innerHTML = ''; // پاکسازی قبلی‌ها
 
-    // کسر پول و ارتقا
-    target.level++;
-    if (currency === 'TON') target.priceTON *= 2;
-    else if (target.priceTRX) target.priceTRX *= 2;
-
-    // منطقِ باز شدنِ ویژه
-    let boughtCount = game.items.filter(i => i.level > 0).length;
-    if (boughtCount >= 6) game.rexar.unlocked = true;
-    if (boughtCount >= 12) game.soul.unlocked = true;
-    if (game.rexar.level >= 3 && game.soul.level >= 3) game.zeus.unlocked = true;
-
-    save();
+    itemsData.forEach(item => {
+        const itemElement = document.createElement('div');
+        itemElement.className = 'shop-card';
+        itemElement.innerHTML = `
+            <img src="assets/item${item.id}.png" alt="${item.name}">
+            <h3>${item.name}</h3>
+            <button onclick="buy('${item.name}', 1000, 'TRX')">Buy TRX (1000)</button>
+            <button onclick="buy('${item.name}', 1, 'TON')">Buy TON (1)</button>
+        `;
+        shopContainer.appendChild(itemElement);
+    });
+    console.log("UI Updated with 12 items");
 }
 
-// ۴. رندرِ فروشگاه (با عکس‌هایِ png شما)
-function renderShop() {
-    const container = document.getElementById('shop-items');
-    container.innerHTML = `
-        <div class="shop-grid">
-            ${game.items.map(i => `
-                <div class="card ${i.level == 0 ? 'locked' : ''}">
-                    <img src="assets/item${i.id}.png">
-                    <h3>${i.name}</h3>
-                    <button onclick="buyItem('normal', ${i.id}, 'TRX')">TRX: ${i.priceTRX}</button>
-                    <button onclick="buyItem('normal', ${i.id}, 'TON')">TON: ${i.priceTON}</button>
-                </div>
-            `).join('')}
-            
-            ${game.rexar.unlocked ? `
-                <div class="card">
-                    <img src="assets/rexar.png">
-                    <h3>Rexar (Lvl ${game.rexar.level})</h3>
-                    <button onclick="buyItem('rexar', null, 'TON')">Upgrade TON: ${game.rexar.priceTON}</button>
-                </div>` : ''}
-        </div>
-    `;
+function buy(itemName, price, currency) {
+    alert(`Purchased ${itemName} with ${currency} for ${price}`);
+    // اینجا منطقِ ضرب در ۲ را اضافه خواهیم کرد
 }
 
-function save() { localStorage.setItem('gameData', JSON.stringify(game)); renderShop(); }
-document.addEventListener("DOMContentLoaded", renderShop);
+// اجرای اولیه
+document.addEventListener('DOMContentLoaded', updateShopUI);
