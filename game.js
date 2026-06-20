@@ -1,3 +1,8 @@
+
+// لود فوری در لحظه ورود
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById('balance').innerText = balanceTRX.toLocaleString();
+});
 let balanceTRX = parseFloat(localStorage.getItem('trx')) || 0;
 let balanceTON = parseFloat(localStorage.getItem('ton')) || 0;
 
