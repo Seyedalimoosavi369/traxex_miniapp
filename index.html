@@ -14,7 +14,15 @@
         <section id="network" class="page"><h2>Network</h2><div id="tree-container"></div></section>
         <section id="shop" class="page"><h2>Shop</h2><div id="shop-items"></div></section>
         <section id="wallet" class="page"><h2>Wallet</h2><div id="wallet-balance">0.00 TRX</div></section>
-        <section id="profile" class="page"><h2>Profile</h2><div id="user-info">@username - ID: 000000</div></section>
+        <section id="profile" class="page">
+            <h2>Profile</h2>
+            <div class="profile-card">
+                <p>Username: <span id="username">@TraxUser</span></p>
+                <p>ID: <span id="user-id">8849201</span></p>
+                <p>Referral Link:</p>
+                <input type="text" id="ref-link" readonly>
+            </div>
+        </section>
     </div>
     <nav class="nav-menu">
         <button onclick="showPage('home')">🏠<span>Home</span></button>
