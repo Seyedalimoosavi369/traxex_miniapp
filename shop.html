@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>TRAXEX Shop</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{background:#0a0a1a;color:#e2e8f0;font-family:'Rajdhani',sans-serif;min-height:100vh;padding-bottom:20px;}
+.header{background:linear-gradient(135deg,#0d0d2b,#1a0a3d);padding:16px;text-align:center;border-bottom:1px solid #2d2d5e;position:sticky;top:0;z-index:50;}
+.header h1{font-family:'Orbitron',sans-serif;font-size:20px;font-weight:900;background:linear-gradient(135deg,#a855f7,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.balance-bar{display:flex;justify-content:center;gap:16px;margin-top:8px;}
+.bal-item{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:4px 14px;font-size:12px;font-weight:700;}
+.bal-item.trx{color:#f59e0b;}
+.bal-item.ton{color:#06b6d4;}
+.tabs{display:flex;gap:6px;padding:12px 12px 0;overflow-x:auto;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{flex-shrink:0;padding:6px 14px;border:1px solid #2d2d5e;border-radius:20px;background:transparent;color:#94a3b8;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;}
+.tab.active{background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;border-color:transparent;}
+.items-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px;}
+.item-card{background:linear-gradient(135deg,#0d0d2b,#12122a);border:1px solid #2d2d5e;border-radius:16px;padding:14px 10px;text-align:center;position:relative;transition:all .2s;}
+.item-card.unlocked{border-color:rgba(168,85,247,.5);box-shadow:0 0 15px rgba(168,85,247,.15);}
+.item-card.special{border-color:rgba(245,158,11,.5);box-shadow:0 0 20px rgba(245,158,11,.2);}
+.item-card.locked-card{opacity:.6;filter:grayscale(.5);}
+.item-img-wrap{position:relative;width:80px;height:80px;margin:0 auto 8px;}
+.item-img{width:80px;height:80px;object-fit:contain;border-radius:12px;}
+.item-img.dark{filter:brightness(.3) grayscale(1);}
+.lock-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:28px;}
+.level-badge{position:absolute;top:-4px;right:-4px;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;font-family:'Orbitron',sans-serif;}
+.level-badge.gold{background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#000;}
+.level-badge.legendary{background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{box-shadow:0 0 5px rgba(239,68,68,.5);}50%{box-shadow:0 0 15px rgba(239,68,68,.8);}}
+.item-name{font-size:13px;font-weight:700;color:#e2e8f0;margin-bottom:2px;}
+.item-effect{font-size:10px;color:#94a3b8;margin-bottom:8px;line-height:1.4;}
+.item-effect.active{color:#10b981;}
+.buy-btns{display:flex;flex-direction:column;gap:5px;}
+.buy-btn{padding:6px 8px;border:none;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:4px;}
+.buy-btn:active{transform:scale(.96);}
+.buy-btn.trx-btn{background:linear-gradient(135deg,#d97706,#f59e0b);color:#000;}
+.buy-btn.ton-btn{background:linear-gradient(135deg,#0891b2,#06b6d4);color:#fff;}
+.buy-btn.disabled{opacity:.4;cursor:not-allowed;}
+.buy-btn.upgrade{background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;}
+.status-off{background:rgba(239,68,68,.15);border:1px dashed #ef4444;border-radius:8px;padding:5px;font-size:10px;color:#ef4444;text-align:center;}
+.status-on{background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:4px;font-size:10px;color:#10b981;text-align:center;}
+.special-section{padding:0 12px 12px;}
+.special-title{font-family:'Orbitron',sans-serif;font-size:11px;color:#f59e0b;letter-spacing:2px;text-align:center;padding:12px 0 8px;text-transform:uppercase;}
+.special-card{background:linear-gradient(135deg,#1a0a00,#2d1a00);border:2px solid rgba(245,158,11,.4);border-radius:18px;padding:16px;text-align:center;margin-bottom:10px;position:relative;}
+.special-card.locked-special{opacity:.5;filter:grayscale(.7);}
+.lock-info{background:rgba(0,0,0,.4);border-radius:10px;padding:8px;margin-top:8px;font-size:11px;color:#94a3b8;line-height:1.5;}
+.lock-info b{color:#f59e0b;}
+.special-img{width:100px;height:100px;object-fit:contain;margin:0 auto 8px;display:block;}
+.special-name{font-family:'Orbitron',sans-serif;font-size:16px;font-weight:900;margin-bottom:4px;}
+.special-name.rexar{background:linear-gradient(135deg,#f59e0b,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.special-name.soul{background:linear-gradient(135deg,#a855f7,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.special-name.zeus{background:linear-gradient(135deg,#fbbf24,#f59e0b,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.special-effect{font-size:12px;color:#94a3b8;margin-bottom:10px;line-height:1.5;}
+.zeus-effect{color:#fbbf24;}
+.progress-bar{background:rgba(255,255,255,.08);border-radius:10px;height:6px;margin:8px 0;overflow:hidden;}
+.progress-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,#7c3aed,#a855f7);transition:width .3s;}
+.progress-text{font-size:10px;color:#94a3b8;text-align:center;}
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:200;display:none;align-items:flex-end;justify-content:center;padding-bottom:0;}
+.modal-overlay.show{display:flex;}
+.modal{background:linear-gradient(135deg,#0d0d2b,#12122a);border:1px solid #3d2d7e;border-radius:24px 24px 0 0;padding:24px 20px 32px;width:100%;max-width:480px;}
+.modal-title{font-family:'Orbitron',sans-serif;font-size:16px;color:#a855f7;text-align:center;margin-bottom:16px;}
+.modal-item-img{width:80px;height:80px;object-fit:contain;display:block;margin:0 auto 10px;}
+.modal-item-name{font-size:18px;font-weight:700;text-align:center;margin-bottom:4px;}
+.modal-level{font-size:12px;color:#94a3b8;text-align:center;margin-bottom:16px;}
+.modal-price-row{display:flex;gap:10px;margin-bottom:16px;}
+.modal-price-btn{flex:1;padding:14px;border:none;border-radius:12px;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;}
+.modal-price-btn:active{transform:scale(.97);}
+.mpb-trx{background:linear-gradient(135deg,#d97706,#f59e0b);color:#000;}
+.mpb-ton{background:linear-gradient(135deg,#0891b2,#06b6d4);color:#fff;}
+.modal-close{width:100%;padding:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;color:#94a3b8;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px;}
+.effect-preview{background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.2);border-radius:12px;padding:10px;margin-bottom:14px;font-size:12px;color:#a855f7;text-align:center;line-height:1.6;}
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(16,185,129,.95);color:#fff;padding:10px 22px;border-radius:28px;font-size:13px;font-weight:700;opacity:0;transition:all .3s;z-index:999;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.err{background:rgba(239,68,68,.95);}
+.conn-indicator{position:fixed;top:8px;right:8px;width:8px;height:8px;border-radius:50%;background:#10b981;z-index:100;}
+</style>
+</head>
+<body>
+
+<div class="conn-indicator" id="conn-ind"></div>
+
+<div class="header">
+  <h1>🛒 TRAXEX SHOP</h1>
+  <div class="balance-bar">
+    <div class="bal-item trx">⚡ <span id="trx-bal">0</span> TRX</div>
+    <div class="bal-item ton">💎 <span id="ton-bal">0.00</span> TON</div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="filterTab('all',this)">همه</button>
+  <button class="tab" onclick="filterTab('miners',this)">ماینرها</button>
+  <button class="tab" onclick="filterTab('storage',this)">مخزن</button>
+  <button class="tab" onclick="filterTab('boost',this)">بوست</button>
+  <button class="tab" onclick="filterTab('special',this)">ویژه ⭐</button>
+</div>
+
+<div class="items-grid" id="items-grid"></div>
+
+<div class="special-section" id="special-section">
+  <div class="special-title">⚡ آیتم‌های ویژه</div>
+  <div id="special-cards"></div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-title">خرید / ارتقا آیتم</div>
+    <img class="modal-item-img" id="m-img" src="">
+    <div class="modal-item-name" id="m-name"></div>
+    <div class="modal-level" id="m-level"></div>
+    <div class="effect-preview" id="m-effect"></div>
+    <div class="modal-price-row">
+      <button class="modal-price-btn mpb-trx" id="m-trx-btn" onclick="confirmBuy('trx')"></button>
+      <button class="modal-price-btn mpb-ton" id="m-ton-btn" onclick="confirmBuy('ton')"></button>
+    </div>
+    <button class="modal-close" onclick="closeModal()">انصراف</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const GITHUB = "https://raw.githubusercontent.com/Seyedalimoosavi369/traxex_miniapp/main/";
+const tg = window.Telegram?.WebApp;
+if(tg){tg.ready();tg.expand();}
+
+// ===================== DATA =====================
+const ITEMS = [
+  {id:1, key:"pickaxe",     name:"Pickaxe",       cat:"miners",  img:"item1.png",
+   effect:"قدرت ماین +2 در هر کلیک",  effectFn:(lv)=>`+${2*lv} TRX/کلیک`},
+  {id:2, key:"energy_cell", name:"Energy Cell",   cat:"boost",   img:"item2.png",
+   effect:"سرعت ماین +50%",           effectFn:(lv)=>`سرعت +${50*lv}%`},
+  {id:3, key:"storage_box", name:"Storage Box",   cat:"storage", img:"item3.png",
+   effect:"مخزن +1000 TRX",           effectFn:(lv)=>`مخزن +${1000*lv} TRX`},
+  {id:4, key:"auto_miner",  name:"Auto Miner",    cat:"miners",  img:"item4.png",
+   effect:"ماین خودکار در آفلاین",    effectFn:(lv)=>`آفلاین +${100*lv} TRX/h`},
+  {id:5, key:"lucky_coin",  name:"Lucky Coin",    cat:"boost",   img:"item5.png",
+   effect:"شانس دوبل ماین 15%",       effectFn:(lv)=>`دوبل ${15*lv}%`},
+  {id:6, key:"speed_chip",  name:"Speed Chip",    cat:"boost",   img:"item6.png",
+   effect:"تایمر ماین -10 دقیقه",     effectFn:(lv)=>`تایمر -${10*lv} دقیقه`},
+  {id:7, key:"drill",       name:"Diamond Drill", cat:"miners",  img:"item7.png",
+   effect:"قدرت ماین x2 در هر کلیک",  effectFn:(lv)=>`x${2*lv} قدرت ماین`},
+  {id:8, key:"vault",       name:"Crypto Vault",  cat:"storage", img:"item8.png",
+   effect:"مخزن +2000 TRX",           effectFn:(lv)=>`مخزن +${2000*lv} TRX`},
+  {id:9, key:"turbo",       name:"Turbo Core",    cat:"boost",   img:"item9.png",
+   effect:"قدرت کلیک x3",            effectFn:(lv)=>`x${3*lv} کلیک`},
+  {id:10,key:"shield",      name:"Shield Node",   cat:"boost",   img:"item10.png",
+   effect:"محافظت موجودی 100%",       effectFn:(lv)=>`محافظت Lv.${lv}`},
+  {id:11,key:"reactor",     name:"Nano Reactor",  cat:"miners",  img:"item11.png",
+   effect:"ماین پسیو +500 TRX/h",    effectFn:(lv)=>`+${500*lv} TRX/h`},
+  {id:12,key:"quantum",     name:"Quantum Lens",  cat:"miners",  img:"item12.png",
+   effect:"قدرت تیم +5% از رفرال‌ها", effectFn:(lv)=>`تیم +${5*lv}%`},
+];
+
+const SPECIAL_ITEMS = [
+  {
+    id:13, key:"rexar", name:"REXAR", cat:"special", img:"rexar.png",
+    nameClass:"rexar",
+    unlockCond:"خرید ۶ آیتم اول (1-6)",
+    unlockCount:6, unlockGroup:[1,2,3,4,5,6],
+    effects:[
+      "⚡ تب ماین x2",
+      "📦 مخزن +5000 TRX",
+      "🤖 Auto Miner آفلاین",
+    ],
+    startTon: 10,
+    maxLevel: 10,
+  },
+  {
+    id:14, key:"soul_keeper", name:"Soul Keeper", cat:"special", img:"soulkeeper.png",
+    nameClass:"soul",
+    unlockCond:"خرید ۶ آیتم دوم (7-12)",
+    unlockCount:6, unlockGroup:[7,8,9,10,11,12],
+    effects:[
+      "💫 تب ماین x2",
+      "📦 مخزن +5000 TRX",
+      "🤖 Auto Miner آفلاین",
+    ],
+    startTon: 10,
+    maxLevel: 10,
+  },
+  {
+    id:15, key:"zeus", name:"ZEUS", cat:"special", img:"zeus.png",
+    nameClass:"zeus",
+    unlockCond:"REXAR + Soul Keeper هر دو لول ۳",
+    effects:[
+      "⚡ قدرت ماین x4",
+      "🏛 مخزن 10,000,000 TRX",
+      "👑 همه آیتم‌ها تقویت x2",
+    ],
+    startTon: 100,
+    maxLevel: 10,
+    tonMultiplier: 2,
+  },
+];
+
+// ===================== STATE =====================
+let playerState = {
+  trx: 0,
+  ton: 0,
+  items: {},      // {key: {level, trxPrice, tonPrice}}
+  specials: {},   // {key: {level, tonPrice}}
+};
+
+// Load from localStorage
+function loadState() {
+  try {
+    const saved = localStorage.getItem('traxex_shop');
+    if(saved) playerState = JSON.parse(saved);
+  } catch(e){}
+  // Init items
+  ITEMS.forEach(item => {
+    if(!playerState.items[item.key]) {
+      playerState.items[item.key] = {level:0, trxPrice:1000, tonPrice:1};
+    }
+  });
+  SPECIAL_ITEMS.forEach(item => {
+    if(!playerState.specials[item.key]) {
+      playerState.specials[item.key] = {level:0, tonPrice: item.startTon};
+    }
+  });
+}
+
+function saveState() {
+  localStorage.setItem('traxex_shop', JSON.stringify(playerState));
+}
+
+// ===================== UI =====================
+let currentTab = 'all';
+let selectedItem = null;
+
+function updateBalanceUI() {
+  document.getElementById('trx-bal').textContent = playerState.trx.toLocaleString();
+  document.getElementById('ton-bal').textContent = playerState.ton.toFixed(4);
+}
+
+function getUnlockedCount(group) {
+  return group.filter(id => {
+    const item = ITEMS.find(i=>i.id===id);
+    return item && playerState.items[item.key]?.level > 0;
+  }).length;
+}
+
+function isSpecialUnlocked(special) {
+  if(special.key === 'zeus') {
+    const rexarLv = playerState.specials['rexar']?.level || 0;
+    const soulLv = playerState.specials['soul_keeper']?.level || 0;
+    return rexarLv >= 3 && soulLv >= 3;
+  }
+  const count = getUnlockedCount(special.unlockGroup);
+  return count >= special.unlockCount;
+}
+
+function renderItems() {
+  const grid = document.getElementById('items-grid');
+  const filtered = currentTab === 'all' || currentTab === 'special'
+    ? ITEMS
+    : ITEMS.filter(i=>i.cat===currentTab);
+
+  if(currentTab === 'special') {
+    grid.innerHTML = '';
+    return;
+  }
+
+  grid.innerHTML = filtered.map(item => {
+    const st = playerState.items[item.key];
+    const lv = st.level;
+    const isOn = lv > 0;
+    const imgUrl = GITHUB + item.img;
+    return `
+    <div class="item-card ${isOn?'unlocked':'locked-card'}" onclick="openModal('regular','${item.key}')">
+      <div class="item-img-wrap">
+        <img class="item-img ${isOn?'':'dark'}" src="${imgUrl}" alt="${item.name}"
+          onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22><rect width=%2280%22 height=%2280%22 fill=%22%231a1a3d%22 rx=%2212%22/><text x=%2240%22 y=%2248%22 text-anchor=%22middle%22 fill=%22%23a855f7%22 font-size=%2228%22>⚡</text></svg>'">
+        ${lv>0?`<span class="level-badge ${lv>=5?'gold':''}">Lv.${lv}</span>`:''}
+        ${!isOn?'<div class="lock-overlay">🔒</div>':''}
+      </div>
+      <div class="item-name">${item.name}</div>
+      <div class="item-effect ${isOn?'active':''}">${isOn ? item.effectFn(lv) : item.effect}</div>
+      ${isOn
+        ? `<div class="status-on">✅ فعال — Lv.${lv}</div>`
+        : `<div class="status-off">🔒 غیرفعال</div>`
+      }
+      <div class="buy-btns" style="margin-top:8px">
+        <button class="buy-btn trx-btn" onclick="event.stopPropagation();quickBuy('regular','${item.key}','trx')">
+          ⚡ ${st.trxPrice.toLocaleString()} TRX
+        </button>
+        <button class="buy-btn ton-btn" onclick="event.stopPropagation();quickBuy('regular','${item.key}','ton')">
+          💎 ${st.tonPrice} TON
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+
+  renderSpecials();
+}
+
+function renderSpecials() {
+  const sc = document.getElementById('special-cards');
+  const ss = document.getElementById('special-section');
+
+  if(currentTab !== 'all' && currentTab !== 'special') {
+    ss.style.display='none'; return;
+  }
+  ss.style.display='block';
+
+  sc.innerHTML = SPECIAL_ITEMS.map(item => {
+    const st = playerState.specials[item.key];
+    const lv = st.level;
+    const isOn = lv > 0;
+    const unlocked = isSpecialUnlocked(item);
+    const imgUrl = GITHUB + item.img;
+
+    let unlockProgress = '';
+    if(!unlocked && item.unlockGroup) {
+      const count = getUnlockedCount(item.unlockGroup);
+      const pct = (count/item.unlockCount)*100;
+      unlockProgress = `
+        <div class="lock-info">
+          🔓 شرط فعال‌سازی: <b>${item.unlockCond}</b><br>
+          پیشرفت: ${count}/${item.unlockCount}
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+        <div class="progress-text">${count} از ${item.unlockCount} آیتم خریداری شده</div>`;
+    }
+    if(!unlocked && item.key==='zeus') {
+      const rLv = playerState.specials['rexar']?.level||0;
+      const sLv = playerState.specials['soul_keeper']?.level||0;
+      unlockProgress = `
+        <div class="lock-info">
+          🔓 شرط: <b>REXAR Lv.3 + Soul Keeper Lv.3</b><br>
+          REXAR: Lv.${rLv}/3 | Soul Keeper: Lv.${sLv}/3
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${Math.min(((rLv+sLv)/6)*100,100)}%"></div></div>`;
+    }
+
+    return `
+    <div class="special-card ${!unlocked?'locked-special':''}" onclick="${unlocked?`openSpecialModal('${item.key}')`:''}" style="${unlocked?'cursor:pointer':''}">
+      <img class="special-img" src="${imgUrl}" alt="${item.name}"
+        onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22><rect width=%22100%22 height=%22100%22 fill=%22%231a0a00%22 rx=%2216%22/><text x=%2250%22 y=%2262%22 text-anchor=%22middle%22 fill=%22%23f59e0b%22 font-size=%2240%22>⭐</text></svg>'"
+        style="${!unlocked?'filter:brightness(.3) grayscale(1)':''}">
+      <div class="special-name ${item.nameClass}">${item.name}</div>
+      ${lv>0?`<div style="color:#fbbf24;font-size:12px;margin:4px 0">Level ${lv} ${lv>=3?'🔥':''}</div>`:''}
+      <div class="special-effect">
+        ${item.effects.map(e=>`• ${e}`).join('<br>')}
+      </div>
+      ${unlocked && lv===0 ? `
+        <button class="buy-btn ton-btn upgrade" style="width:100%;padding:10px;font-size:13px" onclick="event.stopPropagation();openSpecialModal('${item.key}')">
+          🔓 فعال‌سازی — ${st.tonPrice} TON
+        </button>` : ''}
+      ${unlocked && lv>0 ? `
+        <button class="buy-btn upgrade" style="width:100%;padding:10px;font-size:13px" onclick="event.stopPropagation();openSpecialModal('${item.key}')">
+          ⬆️ Level Up — ${st.tonPrice} TON
+        </button>` : ''}
+      ${!unlocked ? unlockProgress : ''}
+    </div>`;
+  }).join('');
+}
+
+// ===================== MODAL =====================
+function openModal(type, key) {
+  const item = type==='regular' ? ITEMS.find(i=>i.key===key) : null;
+  const st = playerState.items[key];
+  const lv = st.level;
+  selectedItem = {type, key};
+
+  document.getElementById('m-img').src = GITHUB + item.img;
+  document.getElementById('m-name').textContent = item.name;
+  document.getElementById('m-level').textContent = lv===0 ? '🔒 غیرفعال' : `Level ${lv} ✅`;
+  document.getElementById('m-effect').textContent = lv===0
+    ? item.effect
+    : `✨ کارایی فعلی: ${item.effectFn(lv)}\n➡️ بعد از خرید: ${item.effectFn(lv+1)}`;
+  document.getElementById('m-trx-btn').textContent = `⚡ ${st.trxPrice.toLocaleString()} TRX`;
+  document.getElementById('m-ton-btn').textContent = `💎 ${st.tonPrice} TON`;
+  document.getElementById('modal').classList.add('show');
+}
+
+function openSpecialModal(key) {
+  const item = SPECIAL_ITEMS.find(i=>i.key===key);
+  const st = playerState.specials[key];
+  const lv = st.level;
+  selectedItem = {type:'special', key};
+
+  document.getElementById('m-img').src = GITHUB + item.img;
+  document.getElementById('m-name').textContent = item.name;
+  document.getElementById('m-level').textContent = lv===0 ? '🔒 غیرفعال' : `Level ${lv}`;
+  document.getElementById('m-effect').textContent = item.effects.join('\n');
+  document.getElementById('m-trx-btn').style.display = 'none';
+  document.getElementById('m-ton-btn').textContent = `💎 ${st.tonPrice} TON — ${lv===0?'فعال‌سازی':'Level Up'}`;
+  document.getElementById('m-ton-btn').style.flex = '1';
+  document.getElementById('modal').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('show');
+  document.getElementById('m-trx-btn').style.display='';
+  document.getElementById('m-ton-btn').style.flex='';
+  selectedItem = null;
+}
+
+function quickBuy(type, key, currency) {
+  selectedItem = {type, key};
+  confirmBuy(currency);
+}
+
+function confirmBuy(currency) {
+  if(!selectedItem) return;
+  const {type, key} = selectedItem;
+
+  if(type === 'regular') {
+    const st = playerState.items[key];
+    const item = ITEMS.find(i=>i.key===key);
+    if(currency === 'trx') {
+      if(playerState.trx < st.trxPrice) {
+        showToast(`❌ TRX کافی نیست! نیاز: ${st.trxPrice.toLocaleString()}`, true); return;
+      }
+      playerState.trx -= st.trxPrice;
+      st.trxPrice *= 2;
+    } else {
+      if(playerState.ton < st.tonPrice) {
+        showToast(`❌ TON کافی نیست! نیاز: ${st.tonPrice}`, true); return;
+      }
+      playerState.ton -= st.tonPrice;
+      st.tonPrice *= 2;
+    }
+    st.level++;
+    showToast(`✅ ${item.name} → Lv.${st.level} فعال شد!`);
+    checkSpecialUnlocks();
+  } else {
+    const st = playerState.specials[key];
+    const item = SPECIAL_ITEMS.find(i=>i.key===key);
+    if(playerState.ton < st.tonPrice) {
+      showToast(`❌ TON کافی نیست! نیاز: ${st.tonPrice}`, true); return;
+    }
+    if(st.level >= item.maxLevel) {
+      showToast(`✅ این آیتم به حداکثر لول رسیده!`, true); return;
+    }
+    playerState.ton -= st.tonPrice;
+    st.tonPrice *= 2;
+    st.level++;
+    showToast(`⚡ ${item.name} → Lv.${st.level} ارتقا یافت!`);
+    checkSpecialUnlocks();
+  }
+
+  saveState();
+  updateBalanceUI();
+  renderItems();
+  closeModal();
+}
+
+function checkSpecialUnlocks() {
+  SPECIAL_ITEMS.forEach(item => {
+    const wasLocked = !isSpecialUnlocked(item);
+    // just re-render to show new state
+  });
+}
+
+// ===================== TAB =====================
+function filterTab(tab, btn) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderItems();
+}
+
+// ===================== TOAST =====================
+function showToast(msg, isErr=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (isErr?' err':'');
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+// ===================== DEMO BALANCE (test) =====================
+// در پروژه واقعی از API میاد
+playerState.trx = 5000;
+playerState.ton = 10;
+
+// ===================== INIT =====================
+loadState();
+updateBalanceUI();
+renderItems();
+
+// Connection indicator
+document.getElementById('conn-ind').style.background = '#10b981';
+</script>
+</body>
+</html>
+
+
