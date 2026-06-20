@@ -6,13 +6,16 @@
     <link rel="stylesheet" href="style.css"> 
 </head>
 <body>
+    <div style="background:#111; padding:10px; display:flex; justify-content:space-between; color:#ffd700; font-weight:bold; border-bottom: 2px solid #333;">
+        <span>TRX: <span id="balance">0</span></span>
+        <span>TON: <span id="ton-balance">0</span></span>
+    </div>
+
     <div id="app">
         <div id="home" class="page active-page">
-            <div id="balance" style="text-align: center; font-size: 40px; margin: 20px;">0</div>
             <div class="btn-mine" onclick="mine()"></div>
         </div>
         <div id="shop" class="page">
-            <h2>Upgrade Items</h2>
             <div id="shop-items"></div>
         </div>
     </div>
@@ -25,7 +28,11 @@
     <script src="game.js"></script>
     <script src="ui.js"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", renderShop);
+        document.addEventListener("DOMContentLoaded", () => {
+            renderShop();
+            document.getElementById('balance').innerText = balanceTRX.toLocaleString();
+            document.getElementById('ton-balance').innerText = balanceTON;
+        });
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
             document.getElementById(pageId).style.display = 'block';
