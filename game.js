@@ -1,18 +1,22 @@
 let balanceTRX = parseFloat(localStorage.getItem('trx')) || 0;
 let balanceTON = parseFloat(localStorage.getItem('ton')) || 0;
+let leftCount = parseInt(localStorage.getItem('leftCount')) || 0;
+let rightCount = parseInt(localStorage.getItem('rightCount')) || 0;
 
-let items = JSON.parse(localStorage.getItem('items')) || Array.from({ length: 12 }, (_, i) => ({ id: i + 1, level: 1, baseCost: 1000 }));
-let specialItems = JSON.parse(localStorage.getItem('special')) || { 
-    soulkeeper: { level: 0, name: "Soulkeeper", cost: 10 }, 
-    rexar: { level: 0, name: "Rexar", cost: 10 }, 
-    zeus: 0 
-};
+function checkBinaryBonus() {
+    // منطق تعادل: اگر هر دو برابر بودند و در اعداد خاص بودند
+    if (leftCount === rightCount && [10, 50, 100, 500].includes(leftCount)) {
+        let bonus = leftCount * rightCount;
+        balanceTRX += bonus;
+        alert("تبریک! تعادل برقرار شد. پاداش: " + bonus + " TRX");
+        saveGame();
+    }
+}
 
-function saveGame() {
-    localStorage.setItem('trx', balanceTRX);
-    localStorage.setItem('ton', balanceTON);
-    localStorage.setItem('items', JSON.stringify(items));
-    localStorage.setItem('special', JSON.stringify(specialItems));
+function processReferralBonus(level) {
+    let percent = level === 1 ? 0.10 : (level === 2 ? 0.01 : 0.001);
+    balanceTRX += (1000 * percent); // پاداش تا لول ۱۰۰۰
+    saveGame();
 }
 
 function mine() {
@@ -21,34 +25,15 @@ function mine() {
     saveGame();
 }
 
-function buyItem(id) {
-    let item = items.find(i => i.id === id);
-    let cost = item.baseCost * Math.pow(2, item.level - 1);
-    if (balanceTRX >= cost) {
-        balanceTRX -= cost;
-        item.level++;
-        saveGame();
-        document.getElementById('balance').innerText = balanceTRX.toLocaleString();
-        renderShop();
-    } else { alert("ترکس کافی نیست!"); }
+function saveGame() {
+    localStorage.setItem('trx', balanceTRX);
+    localStorage.setItem('ton', balanceTON);
+    localStorage.setItem('leftCount', leftCount);
+    localStorage.setItem('rightCount', rightCount);
 }
 
-function upgradeSpecial(name) {
-    let item = specialItems[name];
-    if (item.level < 3 && balanceTON >= item.cost) {
-        balanceTON -= item.cost;
-        item.level++;
-        item.cost *= 2;
-        saveGame();
-        document.getElementById('ton-balance').innerText = balanceTON;
-        renderShop();
-    } else { alert("تون کافی نیست یا به حداکثر رسیده!"); }
-}
-
-function craftZeus() {
-    if (specialItems.soulkeeper.level === 3 && specialItems.rexar.level === 3) {
-        specialItems.soulkeeper.level = 0; specialItems.rexar.level = 0;
-        specialItems.zeus++;
-        saveGame(); renderShop();
-    } else { alert("نیاز به لول ۳ برای هر دو!"); }
-}
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById('balance').innerText = balanceTRX.toLocaleString();
+    document.getElementById('left-count').innerText = leftCount;
+    document.getElementById('right-count').innerText = rightCount;
+});
