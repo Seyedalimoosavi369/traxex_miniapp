@@ -1,11 +1,8 @@
-// پاکسازی حافظه برای شروع از صفر مطلق (فقط برای بار اول)
-if (!localStorage.getItem('initialized')) {
-    localStorage.clear();
-    localStorage.setItem('trx_balance', 0);
-    localStorage.setItem('left_count', 0);
-    localStorage.setItem('right_count', 0);
-    localStorage.setItem('initialized', true);
-}
+// دیتایِ آیتم‌های فروشگاه
+const miners = [
+    { name: "Basic Miner", power: 1, price: 10, img: "assets/basic.png" },
+    { name: "Pro Miner", power: 12, price: 90, img: "assets/pro.png" }
+];
 
 function showPage(pageId) {
     document.querySelectorAll('.page').forEach(p => { p.classList.remove('active'); p.style.display = 'none'; });
@@ -13,35 +10,40 @@ function showPage(pageId) {
     document.getElementById(pageId).style.display = 'block';
 }
 
-function updateUI() {
-    const balance = parseFloat(localStorage.getItem('trx_balance'));
-    const left = localStorage.getItem('left_count');
-    const right = localStorage.getItem('right_count');
-
-    // آپدیت هدر و ماینر
-    document.getElementById('balance').innerText = balance.toFixed(2);
-    document.getElementById('mining-val').innerText = balance.toFixed(2);
-    // آپدیت کیف پول
-    document.getElementById('wallet-balance').innerText = balance.toFixed(2) + " TRX";
-    // آپدیت شبکه
-    document.getElementById('tree-container').innerHTML = `
-        <div class="binary-tree">
-            <div class="node-root">YOU</div>
-            <div class="branches">
-                <div class="branch">Left: ${left}</div>
-                <div class="branch">Right: ${right}</div>
-            </div>
-        </div>`;
+function initData() {
+    // مقداردهی اولیه یوزر آیدی و لینک
+    if (!localStorage.getItem('user_id')) {
+        localStorage.setItem('user_id', Math.floor(Math.random() * 9000000) + 1000000);
+        localStorage.setItem('trx_balance', 0);
+    }
+    
+    document.getElementById('user-id').innerText = localStorage.getItem('user_id');
+    document.getElementById('ref-link').value = "https://t.me/TraxBot?start=" + localStorage.getItem('user_id');
+    
+    // رندر فروشگاه
+    const shopDiv = document.getElementById('shop-items');
+    miners.forEach(m => {
+        shopDiv.innerHTML += `
+            <div class="shop-card">
+                <img src="${m.img}" onerror="this.src='https://via.placeholder.com/50'">
+                <div>
+                    <h4>${m.name}</h4>
+                    <p>Price: ${m.price} TRX</p>
+                </div>
+            </div>`;
+    });
 }
 
 function mine() {
-    let balance = parseFloat(localStorage.getItem('trx_balance'));
+    let balance = parseFloat(localStorage.getItem('trx_balance')) || 0;
     balance += 0.01;
     localStorage.setItem('trx_balance', balance);
-    updateUI();
+    document.getElementById('balance').innerText = balance.toFixed(2);
+    document.getElementById('mining-val').innerText = balance.toFixed(2);
+    document.getElementById('wallet-balance').innerText = balance.toFixed(2) + " TRX";
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    updateUI();
+    initData();
     showPage('home');
 });
