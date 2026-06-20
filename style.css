@@ -1,12 +1,12 @@
 body { background: #050a12; color: white; margin: 0; font-family: sans-serif; }
 .page { display: none; padding: 20px; }
 .page.active { display: block; }
-.header { text-align: center; font-size: 1.2rem; margin-top: 20px; color: #00f2ff; }
+.header { text-align: center; color: #00f2ff; margin-top: 20px; }
 .mining-circle { width: 250px; height: 250px; border-radius: 50%; background: radial-gradient(circle, #00f2ff, #050a12); margin: 50px auto; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 50px #00f2ff; }
 .nav-menu { position: fixed; bottom: 0; width: 100%; display: flex; justify-content: space-around; background: #0f172a; padding: 10px 0; }
 .nav-menu button { background: none; border: none; color: #aaa; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
-.network-container { text-align: center; }
+/* استایل درخت باینری */
 .binary-tree { display: flex; flex-direction: column; align-items: center; margin-top: 20px; }
-.node-root { background: #00f2ff; color: #000; padding: 10px 20px; border-radius: 50px; font-weight: bold; }
-.branches { display: flex; gap: 40px; margin-top: 20px; }
-.branch { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; border: 1px solid #00f2ff; }
+.node-root { background: #00f2ff; color: #000; padding: 15px 30px; border-radius: 50px; font-weight: bold; }
+.branches { display: flex; gap: 40px; margin-top: 30px; }
+.branch { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px; border: 1px solid #00f2ff; text-align: center; }
