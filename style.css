@@ -1,8 +1,21 @@
-body { margin: 0; background: #05070a; color: white; font-family: sans-serif; }
-.header { background:#111; padding:15px; display:flex; justify-content:space-between; color:#ffd700; font-weight:bold; }
-.page { display: none; padding: 20px; }
-.active-page { display: block; }
-.btn-mine { width: 200px; height: 200px; background: #f39c12; border-radius: 50%; margin: 50px auto; cursor: pointer; }
-.card { background: #1a1f2e; padding: 15px; margin: 10px; border-radius: 10px; }
-.nav-menu { position: fixed; bottom: 0; width: 100%; background: #000; display: flex; justify-content: space-around; padding: 15px 0; }
-button { padding: 10px; cursor: pointer; border: none; background: #3498db; color: white; border-radius: 5px; }
+body { background: #050a12; color: #fff; margin: 0; font-family: sans-serif; }
+header { padding: 20px; text-align: center; }
+.mining-circle { 
+    width: 250px; height: 250px; 
+    border-radius: 50%; 
+    margin: 50px auto;
+    background: radial-gradient(circle, #00f2ff, #050a12);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 50px #00f2ff;
+}
+.nav-menu { 
+    position: fixed; bottom: 0; width: 100%; 
+    display: flex; justify-content: space-around;
+    background: rgba(20, 25, 35, 0.9);
+    backdrop-filter: blur(15px);
+    padding: 10px 0;
+}
+.nav-menu button { 
+    background: none; border: none; color: #888;
+    display: flex; flex-direction: column; align-items: center;
+}
