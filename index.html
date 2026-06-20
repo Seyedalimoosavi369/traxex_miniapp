@@ -6,11 +6,10 @@
     <link rel="stylesheet" href="style.css"> 
 </head>
 <body>
-    <div style="background:#111; padding:10px; display:flex; justify-content:space-between; color:#ffd700; font-weight:bold; border-bottom: 2px solid #333;">
-        <span>TRX: <span id="balance">0</span></span>
+    <div class="header">
         <span>TON: <span id="ton-balance">0</span></span>
+        <span>TRX: <span id="balance">0</span></span>
     </div>
-
     <div id="app">
         <div id="home" class="page active-page">
             <div class="btn-mine" onclick="mine()"></div>
@@ -18,25 +17,16 @@
         <div id="shop" class="page">
             <div id="shop-items"></div>
         </div>
+        <div id="referral" class="page">
+            <div id="ref-section"></div>
+        </div>
     </div>
-
     <div class="nav-menu">
-        <button onclick="showPage('home')">خانه</button>
-        <button onclick="showPage('shop')">فروشگاه</button>
+        <button onclick="showPage('home')">🏠</button>
+        <button onclick="showPage('shop')">🛒</button>
+        <button onclick="showPage('referral')">👥</button>
     </div>
-
     <script src="game.js"></script>
     <script src="ui.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            renderShop();
-            document.getElementById('balance').innerText = balanceTRX.toLocaleString();
-            document.getElementById('ton-balance').innerText = balanceTON;
-        });
-        function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-            document.getElementById(pageId).style.display = 'block';
-        }
-    </script>
 </body>
 </html>
