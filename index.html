@@ -9,17 +9,18 @@
     <div id="app">
         <main id="home" class="page active">
             <div class="header">Total Balance: <span id="balance">0.00</span> TRX</div>
-            <div class="mining-circle" onclick="mine()"><div class="inner-circle"><h1 id="mining-val">0.00</h1><p>TRX</p></div></div>
+            <div class="mining-circle" onclick="mine()">
+                <img src="assets/trax_icon.png" id="trax-icon">
+                <h1 id="mining-val">0.00</h1>
+            </div>
         </main>
-        <section id="network" class="page"><h2>Network</h2><div id="tree-container"></div></section>
+        <section id="network" class="page"><h2>Binary Tree</h2><div id="tree-container"></div></section>
         <section id="shop" class="page"><h2>Shop</h2><div id="shop-items"></div></section>
-        <section id="wallet" class="page"><h2>Wallet</h2><div id="wallet-balance">0.00 TRX</div></section>
+        <section id="rankings" class="page"><h2>Rankings</h2><div id="leaderboard"></div></section>
         <section id="profile" class="page">
             <h2>Profile</h2>
             <div class="profile-card">
-                <p>Username: @TraxUser</p>
                 <p>ID: <span id="user-id"></span></p>
-                <p>Referral Link:</p>
                 <input type="text" id="ref-link" readonly>
             </div>
         </section>
@@ -28,7 +29,7 @@
         <button onclick="showPage('home')">🏠<span>Home</span></button>
         <button onclick="showPage('network')">👥<span>Network</span></button>
         <button onclick="showPage('shop')">🛒<span>Shop</span></button>
-        <button onclick="showPage('wallet')">💳<span>Wallet</span></button>
+        <button onclick="showPage('rankings')">🏆<span>Rankings</span></button>
         <button onclick="showPage('profile')">👤<span>Profile</span></button>
     </nav>
     <script src="main.js"></script>
