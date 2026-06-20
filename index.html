@@ -1,35 +1,43 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TRAXEX PRO</title>
-    <link rel="stylesheet" href="style.css"> 
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="header">
-        <span>TON: <span id="ton-balance">0</span></span>
-        <span>TRX: <span id="balance">0</span></span>
-    </div>
-    <div id="app">
-        <div id="home" class="page active-page">
-            <div class="btn-mine" onclick="mine()"></div>
+
+    <header>
+        <div class="user-info">
+            <small>Total Balance</small>
+            <h2 id="balance">12,850.75 <span>TRX</span></h2>
         </div>
-        <div id="shop" class="page">
-            <div id="shop-items"></div>
+        <div class="level-bar">
+            <p>Level: 12</p>
+            <div class="progress"><div style="width: 60%"></div></div>
         </div>
-        <div id="referral" class="page">
-            <div id="ref-tree">
-                <h3>درخت باینری شما</h3>
-                <p>شاخه چپ: <span id="left-count">0</span> | شاخه راست: <span id="right-count">0</span></p>
+    </header>
+
+    <main id="home" class="page active">
+        <div class="mining-circle" onclick="mine()">
+            <div class="inner-circle">
+                <img src="logo_trx.png" alt="TRX">
+                <h1 id="mining-power">25.65</h1>
+                <p>TRX</p>
             </div>
         </div>
-    </div>
-    <div class="nav-menu">
-        <button onclick="showPage('home')">🏠</button>
-        <button onclick="showPage('shop')">🛒</button>
-        <button onclick="showPage('referral')">👥</button>
-    </div>
-    <script src="game.js"></script>
-    <script src="ui.js"></script>
+        <div class="boost-card">Active: Boost (x2)</div>
+    </main>
+
+    <nav class="nav-menu">
+        <button onclick="showPage('home')"><img src="nav_home.png"><span>Home</span></button>
+        <button onclick="showPage('network')"><img src="nav_network.png"><span>Network</span></button>
+        <button onclick="showPage('shop')"><img src="nav_shop.png"><span>Shop</span></button>
+        <button onclick="showPage('wallet')"><img src="nav_wallet.png"><span>Wallet</span></button>
+        <button onclick="showPage('profile')"><img src="nav_profile.png"><span>Profile</span></button>
+    </nav>
+
+    <script src="main.js"></script>
 </body>
 </html>
