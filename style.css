@@ -1,9 +1,8 @@
-body { margin: 0; background: #05070a; color: white; font-family: sans-serif; overflow: hidden; }
-.page { display: none; height: 75vh; overflow-y: auto; padding: 20px; }
+body { margin: 0; background: #05070a; color: white; font-family: sans-serif; }
+.header { background:#111; padding:15px; display:flex; justify-content:space-between; color:#ffd700; font-weight:bold; }
+.page { display: none; padding: 20px; }
 .active-page { display: block; }
-.btn-mine { width: 200px; height: 200px; background: #f39c12; border-radius: 50%; margin: 50px auto; border: 5px solid #fff; cursor: pointer; box-shadow: 0 0 20px #f39c12; transition: 0.3s; }
-.btn-mine:active { transform: scale(0.9); box-shadow: 0 0 40px #f39c12; }
-.card { background: linear-gradient(145deg, #1a1f2e, #0e121a); padding: 15px; border-radius: 15px; margin: 10px; display: flex; align-items: center; border: 1px solid #333; box-shadow: 5px 5px 10px #000; }
-.card img { width: 50px; height: 50px; margin-left: 10px; border-radius: 8px; }
-.nav-menu { position: fixed; bottom: 0; width: 100%; background: #000; display: flex; justify-content: space-around; padding: 15px 0; border-top: 2px solid #333; }
-button { cursor: pointer; padding: 10px; border-radius: 5px; background: #3498db; color: white; border: none; }
+.btn-mine { width: 200px; height: 200px; background: #f39c12; border-radius: 50%; margin: 50px auto; cursor: pointer; }
+.card { background: #1a1f2e; padding: 15px; margin: 10px; border-radius: 10px; }
+.nav-menu { position: fixed; bottom: 0; width: 100%; background: #000; display: flex; justify-content: space-around; padding: 15px 0; }
+button { padding: 10px; cursor: pointer; border: none; background: #3498db; color: white; border-radius: 5px; }
