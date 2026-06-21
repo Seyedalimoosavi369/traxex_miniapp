@@ -42,7 +42,6 @@ body{background:#0a0a1a;color:#fff;font-family:Arial,sans-serif;height:100vh;ove
 .tree-row{display:flex;gap:14px;justify-content:center}
 .tnode{width:46px;height:46px;border-radius:50%;background:#1a1a2e;border:2px solid #333;display:flex;align-items:center;justify-content:center;font-size:16px}
 .tnode.you{border-color:#f0c040}
-.tnode.filled{border-color:#4caf80;background:#1a2a1a}
 .ref-box{background:#111128;border-radius:12px;padding:14px}
 .ref-box p{font-size:12px;color:#888;margin-bottom:8px}
 .ref-url{font-size:12px;color:#f0c040;word-break:break-all;margin-bottom:10px}
@@ -169,8 +168,7 @@ const BOT = 'Minerobo_bot';
 const TON_WALLET = 'UQCs20TzgI5bmr5TJo3PigiEn0DMJhWktPOw7bo27K2FVZwI';
 
 let user = tg.initDataUnsafe?.user || {id: Date.now(), first_name:'User'};
-let urlParams = new URLSearchParams(window.location.search);
-let refId = urlParams.get('ref') || tg.initDataUnsafe?.start_param;
+let refId = tg.initDataUnsafe?.start_param || new URLSearchParams(window.location.search).get('ref');
 
 const ITEMS = [
   {id:1,  name:'Shadow Dagger', hash:1},
@@ -188,13 +186,9 @@ const ITEMS = [
 ];
 
 let state = {
-  balance: 0,
-  hashrate: 1,
-  level: 1,
-  auto: false,
-  itemLevels: {},
-  leftCount: 0,
-  rightCount: 0,
+  balance: 0, hashrate: 1, level: 1,
+  auto: false, itemLevels: {},
+  leftCount: 0, rightCount: 0,
   initialized: false
 };
 
@@ -203,11 +197,7 @@ async function initUser() {
     const res = await fetch(API + '/api/user/init', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({
-        telegram_id: user.id,
-        username: user.first_name,
-        ref: refId
-      })
+      body: JSON.stringify({telegram_id: user.id, username: user.first_name, ref: refId})
     });
     const data = await res.json();
     if(data.balance !== undefined) {
@@ -217,25 +207,16 @@ async function initUser() {
       state.leftCount = data.total_left_points || 0;
       state.rightCount = data.total_right_points || 0;
       try { state.itemLevels = JSON.parse(data.items_owned || '{}'); } catch(e) { state.itemLevels = {}; }
-      // اگه یوزر جدیده 1000 توکن بده
       if(state.balance === 0 && Object.keys(state.itemLevels).length === 0) {
         state.balance = 1000;
         saveUser();
       }
     }
   } catch(e) {
-    // اگه API نبود از localStorage بخون
     try {
       const saved = localStorage.getItem('zeus_' + user.id);
-      if(saved) {
-        const d = JSON.parse(saved);
-        state.balance = d.balance || 1000;
-        state.hashrate = d.hashrate || 1;
-        state.level = d.level || 1;
-        state.itemLevels = d.itemLevels || {};
-      } else {
-        state.balance = 1000;
-      }
+      if(saved) { const d = JSON.parse(saved); state.balance = d.balance || 1000; state.hashrate = d.hashrate || 1; state.level = d.level || 1; state.itemLevels = d.itemLevels || {}; }
+      else { state.balance = 1000; }
     } catch(e2) { state.balance = 1000; }
   }
   state.initialized = true;
@@ -244,29 +225,11 @@ async function initUser() {
 
 async function saveUser() {
   if(!state.initialized) return;
-  const payload = {
-    telegram_id: user.id,
-    balance: Math.floor(state.balance),
-    hashrate: state.hashrate,
-    level: state.level,
-    item_levels: JSON.stringify(state.itemLevels)
-  };
+  const payload = {telegram_id: user.id, balance: Math.floor(state.balance), hashrate: state.hashrate, level: state.level, item_levels: JSON.stringify(state.itemLevels)};
   try {
-    await fetch(API + '/api/user/save', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify(payload)
-    });
+    await fetch(API + '/api/user/save', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
   } catch(e) {}
-  // همیشه localStorage هم ذخیره کن backup
-  try {
-    localStorage.setItem('zeus_' + user.id, JSON.stringify({
-      balance: Math.floor(state.balance),
-      hashrate: state.hashrate,
-      level: state.level,
-      itemLevels: state.itemLevels
-    }));
-  } catch(e) {}
+  try { localStorage.setItem('zeus_' + user.id, JSON.stringify({balance: Math.floor(state.balance), hashrate: state.hashrate, level: state.level, itemLevels: state.itemLevels})); } catch(e) {}
 }
 
 function showPage(name) {
@@ -300,36 +263,23 @@ document.getElementById('tapBtn').addEventListener('click', function(e) {
   if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
 });
 
-let autoInt = null;
-let autoCount = 0;
+let autoInt = null, autoCount = 0;
 function toggleAuto() {
   state.auto = !state.auto;
   const btn = document.getElementById('autoBtn');
   if(state.auto) {
-    btn.classList.add('on');
-    btn.textContent = '🤖 Auto ON';
-    autoInt = setInterval(() => {
-      state.balance += state.hashrate;
-      updateUI();
-      autoCount++;
-      if(autoCount % 30 === 0) saveUser();
-    }, 1000);
+    btn.classList.add('on'); btn.textContent = '🤖 Auto ON';
+    autoInt = setInterval(() => { state.balance += state.hashrate; updateUI(); autoCount++; if(autoCount % 30 === 0) saveUser(); }, 1000);
   } else {
-    btn.classList.remove('on');
-    btn.textContent = '🤖 Auto';
-    clearInterval(autoInt);
-    saveUser();
+    btn.classList.remove('on'); btn.textContent = '🤖 Auto';
+    clearInterval(autoInt); saveUser();
   }
 }
 
 function getPrice(item) {
   const lvl = state.itemLevels[item.id] || 0;
-  if(lvl === 0) {
-    return {type:'zeus', amount: item.id * 1000};
-  } else {
-    const price = Math.round(item.id * Math.pow(1.5, lvl - 1) * 100) / 100;
-    return {type:'ton', amount: price};
-  }
+  if(lvl === 0) return {type:'zeus', amount: item.id * 1000};
+  return {type:'ton', amount: Math.round(item.id * Math.pow(1.5, lvl - 1) * 100) / 100};
 }
 
 function renderShop() {
@@ -363,40 +313,46 @@ function buyItem(id) {
   if(price.type === 'zeus') {
     tg.showConfirm(`Buy ${item.name}?\nCost: ${price.amount.toLocaleString()} ZEUS`, ok => {
       if(!ok) return;
-      if(state.balance < price.amount) {
-        tg.showAlert('❌ Not enough ZEUS!\nNeed: ' + price.amount.toLocaleString());
-        return;
-      }
+      if(state.balance < price.amount) { tg.showAlert('❌ Not enough ZEUS!\nNeed: ' + price.amount.toLocaleString()); return; }
       state.balance -= price.amount;
       state.itemLevels[id] = 1;
       state.hashrate += item.hash;
       state.level = Math.max(1, ...Object.values(state.itemLevels));
-      updateUI();
-      renderShop();
-      saveUser();
+      updateUI(); renderShop(); saveUser();
       tg.showAlert('✅ ' + item.name + ' purchased!\n+' + item.hash + ' hash/s');
     });
   } else {
     const lvl = state.itemLevels[id] || 0;
     const comment = `zeus_item${id}_uid${user.id}_lv${lvl+1}`;
     const nanotons = Math.round(price.amount * 1e9);
-    tg.showConfirm(`Upgrade ${item.name} to Level ${lvl+1}?\nCost: ${price.amount} TON\n\nYou will be redirected to your TON wallet.`, ok => {
+    tg.showConfirm(`Upgrade ${item.name} to Level ${lvl+1}?\nCost: ${price.amount} TON\n\nSend TON with this comment:\n${comment}`, ok => {
       if(!ok) return;
       const tonUrl = `https://app.tonkeeper.com/transfer/${TON_WALLET}?amount=${nanotons}&text=${comment}`;
       tg.openLink(tonUrl);
       setTimeout(() => {
-        tg.showConfirm('Did you complete the TON payment?', paid => {
-          if(paid) {
-            state.itemLevels[id] = lvl + 1;
-            state.hashrate += item.hash;
-            state.level = Math.max(1, ...Object.values(state.itemLevels));
-            updateUI();
-            renderShop();
-            saveUser();
-            tg.showAlert('✅ Upgraded to Level ' + (lvl+1) + '!');
-          }
+        tg.showConfirm('After sending TON, click Verify to check blockchain', confirm => {
+          if(!confirm) return;
+          tg.showAlert('⏳ Checking blockchain...');
+          fetch(API + '/api/verify_ton', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({comment: comment, telegram_id: user.id, item_id: id, expected_amount: price.amount})
+          })
+          .then(r => r.json())
+          .then(result => {
+            if(result.ok) {
+              state.itemLevels[id] = lvl + 1;
+              state.hashrate += item.hash;
+              state.level = Math.max(1, ...Object.values(state.itemLevels));
+              updateUI(); renderShop(); saveUser();
+              tg.showAlert('✅ Payment verified!\n' + item.name + ' upgraded to Level ' + (lvl+1));
+            } else {
+              tg.showAlert('❌ Payment not found!\nMake sure you sent ' + price.amount + ' TON\nWith comment: ' + comment + '\n\nTry again in 1 minute.');
+            }
+          })
+          .catch(() => tg.showAlert('❌ Verification error. Try again.'));
         });
-      }, 5000);
+      }, 8000);
     });
   }
 }
@@ -410,11 +366,7 @@ function renderNetwork() {
 
 function copyRef() {
   const link = `https://t.me/${BOT}?start=${user.id}`;
-  navigator.clipboard.writeText(link).then(() => {
-    tg.showAlert('✅ Referral link copied!');
-  }).catch(() => {
-    tg.showAlert('Your link:\n' + link);
-  });
+  navigator.clipboard.writeText(link).then(() => tg.showAlert('✅ Referral link copied!')).catch(() => tg.showAlert('Your link:\n' + link));
 }
 
 function renderProfile() {
@@ -428,9 +380,7 @@ function renderProfile() {
   document.getElementById('pTotal').textContent = state.leftCount + state.rightCount;
 }
 
-// ذخیره هر ۶۰ ثانیه
 setInterval(saveUser, 60000);
-// ذخیره موقع بستن
 window.addEventListener('beforeunload', saveUser);
 tg.onEvent('viewportChanged', saveUser);
 
