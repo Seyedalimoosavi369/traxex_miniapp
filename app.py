@@ -1,9 +1,11 @@
 from flask import Flask, request, jsonify
 import sqlite3
 import os
+import requests
 
 app = Flask(__name__)
 DB_NAME = '/tmp/zeus.db'
+TON_WALLET = 'UQCs20TzgI5bmr5TJo3PigiEn0DMJhWktPOw7bo27K2FVZwI'
 
 def get_db():
     conn = sqlite3.connect(DB_NAME)
@@ -23,6 +25,14 @@ def init_db():
             parent_id INTEGER,
             total_left_points INTEGER DEFAULT 0,
             total_right_points INTEGER DEFAULT 0
+        )
+    ''')
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS ton_payments (
+            comment TEXT PRIMARY KEY,
+            verified INTEGER DEFAULT 0,
+            amount REAL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
     conn.commit()
@@ -62,6 +72,47 @@ def save_user():
     conn.commit()
     conn.close()
     return jsonify({"status": "ok"})
+
+@app.route('/api/verify_ton', methods=['POST'])
+def verify_ton():
+    data = request.json
+    comment = data.get('comment')
+    telegram_id = data.get('telegram_id')
+    item_id = data.get('item_id')
+    expected_amount = data.get('expected_amount')
+
+    if not all([comment, telegram_id, item_id]):
+        return jsonify({"ok": False, "error": "Missing data"}), 400
+
+    try:
+        # چک کردن TON blockchain
+        url = f'https://toncenter.com/api/v2/getTransactions?address={TON_WALLET}&limit=20'
+        res = requests.get(url, timeout=10)
+        txs = res.json().get('result', [])
+
+        found = False
+        for tx in txs:
+            msg = tx.get('in_msg', {})
+            msg_comment = msg.get('message', '')
+            amount = int(msg.get('value', 0)) / 1e9
+
+            if msg_comment == comment and amount >= expected_amount * 0.95:
+                found = True
+                break
+
+        if found:
+            # ذخیره پرداخت تأیید شده
+            conn = get_db()
+            conn.execute('INSERT OR REPLACE INTO ton_payments (comment, verified, amount) VALUES (?, 1, ?)',
+                (comment, expected_amount))
+            conn.commit()
+            conn.close()
+            return jsonify({"ok": True})
+        else:
+            return jsonify({"ok": False, "error": "Payment not found"})
+
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
 
 @app.route('/api/user/get', methods=['GET'])
 def get_user():
