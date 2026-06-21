@@ -1,11 +1,13 @@
 from flask import Flask, request, jsonify
 import sqlite3
 import os
-import requests
+import requests as req
 
 app = Flask(__name__)
 DB_NAME = '/tmp/zeus.db'
 TON_WALLET = 'UQCs20TzgI5bmr5TJo3PigiEn0DMJhWktPOw7bo27K2FVZwI'
+
+COMMISSION_RATES = {1: 0.10, 2: 0.01, 3: 0.001}
 
 def get_db():
     conn = sqlite3.connect(DB_NAME)
@@ -23,6 +25,10 @@ def init_db():
             level INTEGER DEFAULT 1,
             items_owned TEXT DEFAULT '{}',
             parent_id INTEGER,
+            left_child INTEGER,
+            right_child INTEGER,
+            left_count INTEGER DEFAULT 0,
+            right_count INTEGER DEFAULT 0,
             total_left_points INTEGER DEFAULT 0,
             total_right_points INTEGER DEFAULT 0
         )
@@ -38,6 +44,68 @@ def init_db():
     conn.commit()
     conn.close()
 
+def place_in_binary(conn, new_id, ref_id):
+    if not ref_id:
+        return
+    ref = conn.execute('SELECT * FROM users WHERE telegram_id=?', (ref_id,)).fetchone()
+    if not ref:
+        return
+    # اگه چپ خالیه
+    if not ref['left_child']:
+        conn.execute('UPDATE users SET left_child=?, left_count=left_count+1 WHERE telegram_id=?', (new_id, ref_id))
+        conn.execute('UPDATE users SET parent_id=? WHERE telegram_id=?', (ref_id, new_id))
+        update_upline(conn, ref_id, 'left')
+    # اگه راست خالیه
+    elif not ref['right_child']:
+        conn.execute('UPDATE users SET right_child=?, right_count=right_count+1 WHERE telegram_id=?', (new_id, ref_id))
+        conn.execute('UPDATE users SET parent_id=? WHERE telegram_id=?', (ref_id, new_id))
+        update_upline(conn, ref_id, 'right')
+    # هر دو پر - بذار زیر چپ
+    else:
+        place_in_binary(conn, new_id, ref['left_child'])
+
+def update_upline(conn, user_id, side):
+    current = user_id
+    level = 1
+    while current and level <= 10:
+        parent = conn.execute('SELECT * FROM users WHERE telegram_id=?', (current,)).fetchone()
+        if not parent:
+            break
+        pid = parent['parent_id']
+        if not pid:
+            break
+        p = conn.execute('SELECT * FROM users WHERE telegram_id=?', (pid,)).fetchone()
+        if not p:
+            break
+        # کمیسیون
+        rate = COMMISSION_RATES.get(level, 0)
+        if rate > 0:
+            bonus = 10 * rate
+            conn.execute('UPDATE users SET balance=balance+? WHERE telegram_id=?', (bonus, pid))
+        # آپدیت count
+        if side == 'left':
+            conn.execute('UPDATE users SET total_left_points=total_left_points+1 WHERE telegram_id=?', (pid,))
+        else:
+            conn.execute('UPDATE users SET total_right_points=total_right_points+1 WHERE telegram_id=?', (pid,))
+        # چک لول‌آپ
+        check_levelup(conn, pid)
+        current = pid
+        level += 1
+
+def check_levelup(conn, user_id):
+    user = conn.execute('SELECT * FROM users WHERE telegram_id=?', (user_id,)).fetchone()
+    if not user:
+        return
+    left = user['total_left_points']
+    right = user['total_right_points']
+    current_level = user['level']
+    new_level = min(left, right) // 5
+    if new_level > current_level:
+        bonus = (new_level - current_level) * 500
+        new_hash = new_level + 1
+        conn.execute('UPDATE users SET level=?, balance=balance+?, hashrate=? WHERE telegram_id=?',
+            (new_level, bonus, new_hash, user_id))
+
 @app.route('/api/user/init', methods=['POST'])
 def init_user():
     data = request.json
@@ -47,11 +115,14 @@ def init_user():
     if not telegram_id:
         return jsonify({"error": "Missing telegram_id"}), 400
     conn = get_db()
-    user = conn.execute('SELECT * FROM users WHERE telegram_id = ?', (telegram_id,)).fetchone()
+    user = conn.execute('SELECT * FROM users WHERE telegram_id=?', (telegram_id,)).fetchone()
     if not user:
-        conn.execute('INSERT INTO users (telegram_id, username, parent_id) VALUES (?, ?, ?)', (telegram_id, username, ref))
+        conn.execute('INSERT INTO users (telegram_id, username, balance) VALUES (?,?,?)', (telegram_id, username, 1000))
         conn.commit()
-        user = conn.execute('SELECT * FROM users WHERE telegram_id = ?', (telegram_id,)).fetchone()
+        if ref and str(ref) != str(telegram_id):
+            place_in_binary(conn, telegram_id, int(ref))
+            conn.commit()
+        user = conn.execute('SELECT * FROM users WHERE telegram_id=?', (telegram_id,)).fetchone()
     result = dict(user)
     conn.close()
     return jsonify(result)
@@ -80,37 +151,28 @@ def verify_ton():
     telegram_id = data.get('telegram_id')
     item_id = data.get('item_id')
     expected_amount = data.get('expected_amount')
-
     if not all([comment, telegram_id, item_id]):
         return jsonify({"ok": False, "error": "Missing data"}), 400
-
     try:
-        # چک کردن TON blockchain
         url = f'https://toncenter.com/api/v2/getTransactions?address={TON_WALLET}&limit=20'
-        res = requests.get(url, timeout=10)
+        res = req.get(url, timeout=10)
         txs = res.json().get('result', [])
-
         found = False
         for tx in txs:
             msg = tx.get('in_msg', {})
             msg_comment = msg.get('message', '')
             amount = int(msg.get('value', 0)) / 1e9
-
             if msg_comment == comment and amount >= expected_amount * 0.95:
                 found = True
                 break
-
         if found:
-            # ذخیره پرداخت تأیید شده
             conn = get_db()
-            conn.execute('INSERT OR REPLACE INTO ton_payments (comment, verified, amount) VALUES (?, 1, ?)',
-                (comment, expected_amount))
+            conn.execute('INSERT OR REPLACE INTO ton_payments (comment, verified, amount) VALUES (?,1,?)', (comment, expected_amount))
             conn.commit()
             conn.close()
             return jsonify({"ok": True})
         else:
             return jsonify({"ok": False, "error": "Payment not found"})
-
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)}), 500
 
@@ -120,7 +182,7 @@ def get_user():
     if not telegram_id:
         return jsonify({"error": "Missing telegram_id"}), 400
     conn = get_db()
-    user = conn.execute('SELECT * FROM users WHERE telegram_id = ?', (telegram_id,)).fetchone()
+    user = conn.execute('SELECT * FROM users WHERE telegram_id=?', (telegram_id,)).fetchone()
     conn.close()
     if not user:
         return jsonify({"error": "User not found"}), 404
@@ -131,4 +193,3 @@ init_db()
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
-# updated
