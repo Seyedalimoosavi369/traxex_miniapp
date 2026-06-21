@@ -5,17 +5,21 @@ import requests as req
 
 app = Flask(__name__)
 DB_NAME = '/tmp/zeus.db'
-TON_WALLET = 'UQCs20TzgI5bmr5TJo3PigiEn0DMJhWktPOw7bo27K2FVZwI'
+TON_WALLET = 'UQCs2OTzgI5bmr5TJo3PigiEn0DMJhWktPOw7bo27K2FVZwl'
 
+# درصد کمیسیون هر لول
 COMMISSION_RATES = {1: 0.10, 2: 0.01, 3: 0.001}
+
 
 def get_db():
     conn = sqlite3.connect(DB_NAME)
     conn.row_factory = sqlite3.Row
     return conn
 
+
 def init_db():
     conn = get_db()
+    # جدول یوزرها
     conn.execute('''
         CREATE TABLE IF NOT EXISTS users (
             telegram_id INTEGER PRIMARY KEY,
@@ -23,7 +27,7 @@ def init_db():
             balance REAL DEFAULT 0,
             hashrate INTEGER DEFAULT 1,
             level INTEGER DEFAULT 1,
-            items_owned TEXT DEFAULT '{}',
+            items_owned TEXT DEFAULT "{}",
             parent_id INTEGER,
             left_child INTEGER,
             right_child INTEGER,
@@ -33,9 +37,12 @@ def init_db():
             total_right_points INTEGER DEFAULT 0
         )
     ''')
+    # جدول پرداخت‌های TON
     conn.execute('''
         CREATE TABLE IF NOT EXISTS ton_payments (
             comment TEXT PRIMARY KEY,
+            telegram_id INTEGER,
+            item_id TEXT,
             verified INTEGER DEFAULT 0,
             amount REAL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -44,45 +51,46 @@ def init_db():
     conn.commit()
     conn.close()
 
+
+# قرار دادن یوزر جدید توی درخت باینری
 def place_in_binary(conn, new_id, ref_id):
     if not ref_id:
         return
     ref = conn.execute('SELECT * FROM users WHERE telegram_id=?', (ref_id,)).fetchone()
     if not ref:
         return
-    # اگه چپ خالیه
     if not ref['left_child']:
+        # بذار چپ
         conn.execute('UPDATE users SET left_child=?, left_count=left_count+1 WHERE telegram_id=?', (new_id, ref_id))
         conn.execute('UPDATE users SET parent_id=? WHERE telegram_id=?', (ref_id, new_id))
         update_upline(conn, ref_id, 'left')
-    # اگه راست خالیه
     elif not ref['right_child']:
+        # بذار راست
         conn.execute('UPDATE users SET right_child=?, right_count=right_count+1 WHERE telegram_id=?', (new_id, ref_id))
         conn.execute('UPDATE users SET parent_id=? WHERE telegram_id=?', (ref_id, new_id))
         update_upline(conn, ref_id, 'right')
-    # هر دو پر - بذار زیر چپ
     else:
+        # هر دو پر - بذار زیر چپ
         place_in_binary(conn, new_id, ref['left_child'])
 
+
+# آپدیت کردن همه بالادستی‌ها
 def update_upline(conn, user_id, side):
     current = user_id
     level = 1
     while current and level <= 10:
-        parent = conn.execute('SELECT * FROM users WHERE telegram_id=?', (current,)).fetchone()
-        if not parent:
+        parent_row = conn.execute('SELECT * FROM users WHERE telegram_id=?', (current,)).fetchone()
+        if not parent_row:
             break
-        pid = parent['parent_id']
+        pid = parent_row['parent_id']
         if not pid:
-            break
-        p = conn.execute('SELECT * FROM users WHERE telegram_id=?', (pid,)).fetchone()
-        if not p:
             break
         # کمیسیون
         rate = COMMISSION_RATES.get(level, 0)
         if rate > 0:
             bonus = 10 * rate
             conn.execute('UPDATE users SET balance=balance+? WHERE telegram_id=?', (bonus, pid))
-        # آپدیت count
+        # آپدیت تعداد
         if side == 'left':
             conn.execute('UPDATE users SET total_left_points=total_left_points+1 WHERE telegram_id=?', (pid,))
         else:
@@ -92,6 +100,8 @@ def update_upline(conn, user_id, side):
         current = pid
         level += 1
 
+
+# چک کردن لول‌آپ
 def check_levelup(conn, user_id):
     user = conn.execute('SELECT * FROM users WHERE telegram_id=?', (user_id,)).fetchone()
     if not user:
@@ -99,12 +109,16 @@ def check_levelup(conn, user_id):
     left = user['total_left_points']
     right = user['total_right_points']
     current_level = user['level']
+    # هر 5 نفر چپ + 5 نفر راست = یه لول
     new_level = min(left, right) // 5
     if new_level > current_level:
         bonus = (new_level - current_level) * 500
         new_hash = new_level + 1
-        conn.execute('UPDATE users SET level=?, balance=balance+?, hashrate=? WHERE telegram_id=?',
-            (new_level, bonus, new_hash, user_id))
+        conn.execute(
+            'UPDATE users SET level=?, balance=balance+?, hashrate=? WHERE telegram_id=?',
+            (new_level, bonus, new_hash, user_id)
+        )
+
 
 @app.route('/api/user/init', methods=['POST'])
 def init_user():
@@ -117,15 +131,21 @@ def init_user():
     conn = get_db()
     user = conn.execute('SELECT * FROM users WHERE telegram_id=?', (telegram_id,)).fetchone()
     if not user:
-        conn.execute('INSERT INTO users (telegram_id, username, balance) VALUES (?,?,?)', (telegram_id, username, 1000))
+        # یوزر جدید با 1000 توکن شروع
+        conn.execute('INSERT INTO users (telegram_id, username, balance) VALUES (?,?,?)',
+                     (telegram_id, username, 1000))
         conn.commit()
         if ref and str(ref) != str(telegram_id):
-            place_in_binary(conn, telegram_id, int(ref))
-            conn.commit()
-        user = conn.execute('SELECT * FROM users WHERE telegram_id=?', (telegram_id,)).fetchone()
+            try:
+                place_in_binary(conn, telegram_id, int(ref))
+                conn.commit()
+            except:
+                pass
+    user = conn.execute('SELECT * FROM users WHERE telegram_id=?', (telegram_id,)).fetchone()
     result = dict(user)
     conn.close()
     return jsonify(result)
+
 
 @app.route('/api/user/save', methods=['POST'])
 def save_user():
@@ -138,11 +158,14 @@ def save_user():
     if not telegram_id:
         return jsonify({"error": "Missing telegram_id"}), 400
     conn = get_db()
-    conn.execute('UPDATE users SET balance=?, hashrate=?, level=?, items_owned=? WHERE telegram_id=?',
-        (balance, hashrate, level, str(item_levels), telegram_id))
+    conn.execute(
+        'UPDATE users SET balance=?, hashrate=?, level=?, items_owned=? WHERE telegram_id=?',
+        (balance, hashrate, level, str(item_levels), telegram_id)
+    )
     conn.commit()
     conn.close()
     return jsonify({"status": "ok"})
+
 
 @app.route('/api/verify_ton', methods=['POST'])
 def verify_ton():
@@ -153,6 +176,17 @@ def verify_ton():
     expected_amount = data.get('expected_amount')
     if not all([comment, telegram_id, item_id]):
         return jsonify({"ok": False, "error": "Missing data"}), 400
+
+    conn = get_db()
+    # --- جلوگیری از سواستفاده: کامنت باید فقط یکبار برای همین یوزر و همین آیتم رزرو/تایید بشه ---
+    existing = conn.execute('SELECT * FROM ton_payments WHERE comment=?', (comment,)).fetchone()
+    if existing and existing['verified'] == 1:
+        conn.close()
+        # اگه قبلاً تایید شده، فقط برای همون یوزر/آیتم اصلی معتبره
+        if str(existing['telegram_id']) == str(telegram_id) and existing['item_id'] == item_id:
+            return jsonify({"ok": True})
+        return jsonify({"ok": False, "error": "Comment already used"}), 400
+
     try:
         url = f'https://toncenter.com/api/v2/getTransactions?address={TON_WALLET}&limit=20'
         res = req.get(url, timeout=10)
@@ -166,15 +200,21 @@ def verify_ton():
                 found = True
                 break
         if found:
-            conn = get_db()
-            conn.execute('INSERT OR REPLACE INTO ton_payments (comment, verified, amount) VALUES (?,1,?)', (comment, expected_amount))
+            # کامنت رو با مالکیت یوزر و آیتم ثبت می‌کنیم تا قابل سواستفاده دوباره نباشه
+            conn.execute(
+                'INSERT OR REPLACE INTO ton_payments (comment, telegram_id, item_id, verified, amount) '
+                'VALUES (?,?,?,1,?)',
+                (comment, telegram_id, item_id, expected_amount)
+            )
             conn.commit()
             conn.close()
             return jsonify({"ok": True})
-        else:
-            return jsonify({"ok": False, "error": "Payment not found"})
+        conn.close()
+        return jsonify({"ok": False, "error": "Payment not found"})
     except Exception as e:
+        conn.close()
         return jsonify({"ok": False, "error": str(e)}), 500
+
 
 @app.route('/api/user/get', methods=['GET'])
 def get_user():
@@ -188,8 +228,42 @@ def get_user():
         return jsonify({"error": "User not found"}), 404
     return jsonify(dict(user))
 
+
+@app.route('/api/network', methods=['GET'])
+def get_network():
+    telegram_id = request.args.get('telegram_id')
+    if not telegram_id:
+        return jsonify({"error": "Missing"}), 400
+    conn = get_db()
+    user = conn.execute('SELECT * FROM users WHERE telegram_id=?', (telegram_id,)).fetchone()
+    if not user:
+        conn.close()
+        return jsonify({"error": "Not found"}), 404
+    left = None
+    right = None
+    if user['left_child']:
+        l = conn.execute('SELECT telegram_id, username FROM users WHERE telegram_id=?',
+                          (user['left_child'],)).fetchone()
+        if l:
+            left = dict(l)
+    if user['right_child']:
+        r = conn.execute('SELECT telegram_id, username FROM users WHERE telegram_id=?',
+                          (user['right_child'],)).fetchone()
+        if r:
+            right = dict(r)
+    conn.close()
+    return jsonify({
+        "left_child": left,
+        "right_child": right,
+        "total_left": user['total_left_points'],
+        "total_right": user['total_right_points'],
+        "level": user['level']
+    })
+
+
 init_db()
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
+
