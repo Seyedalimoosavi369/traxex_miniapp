@@ -2,36 +2,319 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>TRAXEX PRO</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Traxex Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        body { background: #03030c; color: #fff; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; user-select: none; -webkit-user-select: none; }
+        
+        /* هدر فوق حرفه‌ای نئون */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: rgba(11, 11, 28, 0.6); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(0, 242, 254, 0.15); box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+        .user-info { display: flex; align-items: center; gap: 12px; }
+        .avatar { width: 44px; height: 44px; background: radial-gradient(circle, #00f2fe 0%, #4facfe 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid #00f2fe; box-shadow: 0 0 15px rgba(0,242,254,0.4); }
+        .rank-badge { font-size: 11px; font-weight: 700; color: #00f2fe; background: rgba(0, 242, 254, 0.12); padding: 3px 10px; border-radius: 20px; margin-top: 4px; display: inline-block; border: 1px solid rgba(0,242,254,0.2); }
+        
+        /* انیمیشن و استایل صفحات */
+        .page-content { flex: 1; overflow-y: auto; padding: 20px; display: none; padding-bottom: 95px; animation: fadeIn 0.3s ease-in-out; }
+        .page-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* کارت بالانس با استایل سه‌بعدی داخل عکس */
+        .balance-card { background: linear-gradient(135deg, rgba(20, 20, 45, 0.9) 0%, rgba(10, 10, 25, 0.95) 100%); border: 1px solid rgba(0, 242, 254, 0.2); border-radius: 24px; padding: 25px 20px; text-align: center; margin-bottom: 20px; box-shadow: 0 12px 40px rgba(0,0,0,0.6), inset 0 0 20px rgba(0,242,254,0.05); position: relative; overflow: hidden; }
+        .balance-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(79,172,254,0.08) 0%, transparent 60%); pointer-events: none; }
+        .balance-main { font-size: 42px; font-weight: 900; color: #f1c40f; text-shadow: 0 0 20px rgba(241,196,15,0.4); margin-top: 5px; font-family: 'Courier New', Courier, monospace; }
+        .ton-equivalent { font-size: 14px; color: #00f2fe; font-weight: 600; margin-top: 6px; letter-spacing: 0.5px; }
+        
+        /* هسته مرکزی ماینینگ با نورهای درخشان */
+        .core-container { position: relative; width: 250px; height: 250px; margin: 20px auto; display: flex; align-items: center; justify-content: center; }
+        .main-core-btn { width: 220px; height: 220px; border-radius: 50%; background: radial-gradient(circle, #2d1b4e 0%, #0d0d1a 100%); border: 4px solid #7b2cbf; box-shadow: 0 0 50px rgba(123,44,191,0.5), inset 0 0 30px rgba(0,242,254,0.2); cursor: pointer; transition: transform 0.05s cubic-bezier(0, 0, 0.2, 1); display: flex; align-items: center; justify-content: center; outline: none; -webkit-tap-highlight-color: transparent; }
+        .main-core-btn:active { transform: scale(0.93); border-color: #00f2fe; box-shadow: 0 0 60px rgba(0,242,254,0.8), inset 0 0 20px rgba(0,242,254,0.4); }
+        .core-icon { width: 120px; height: 120px; filter: drop-shadow(0 0 20px #00f2fe) drop-shadow(0 0 30px #7b2cbf); transform: rotate(-10deg); }
+        
+        /* نوار انرژی متحرک */
+        .energy-section { max-width: 320px; margin: 10px auto 0 auto; background: rgba(255,255,255,0.02); padding: 12px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); }
+        .progress-bar { width: 100%; background: #090915; height: 12px; border-radius: 10px; overflow: hidden; border: 1px solid #1a1a3a; margin-top: 8px; position: relative; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #7b2cbf, #00f2fe); width: 100%; transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 10px rgba(0,242,254,0.5); }
+
+        /* گرید کارت‌های پریمیوم شاپ */
+        .items-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
+        .item-card { background: linear-gradient(145deg, #11112a 0%, #080815 100%); border: 1px solid rgba(255,255,255,0.06); border-radius: 20px; padding: 18px 12px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 8px 25px rgba(0,0,0,0.5); transition: 0.2s; }
+        .item-card img { width: 65px; height: 65px; margin: 5px auto 12px auto; filter: drop-shadow(0 0 12px rgba(0,242,254,0.3)); }
+        .item-title { font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+        .item-desc { font-size: 11px; color: #00f2fe; margin-bottom: 15px; font-weight: 500; }
+        .action-btn { background: linear-gradient(135deg, #7b2cbf 0%, #4facfe 100%); color: #fff; border: none; padding: 12px; border-radius: 12px; font-size: 13px; font-weight: 800; cursor: pointer; width: 100%; box-shadow: 0 4px 15px rgba(123,44,191,0.3); transition: 0.2s; }
+        .action-btn:active { transform: scale(0.96); }
+
+        /* منوی پایینی نئون کاملاً منطبق بر فوتوشاپ دمو */
+        .navbar { position: fixed; bottom: 0; left: 0; right: 0; height: 78px; background: rgba(5, 5, 15, 0.85); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.07); display: flex; justify-content: space-around; align-items: center; z-index: 1000; box-shadow: 0 -10px 35px rgba(0,0,0,0.6); padding-bottom: 12px; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 6px; color: #4e4e6a; cursor: pointer; font-size: 11px; font-weight: 700; width: 20%; text-decoration: none; -webkit-tap-highlight-color: transparent; transition: 0.2s; }
+        .nav-item i { font-size: 22px; }
+        .nav-item.active { color: #00f2fe; }
+        .nav-item.active i { transform: translateY(-4px); color: #00f2fe; filter: drop-shadow(0 0 8px rgba(0,242,254,0.8)); }
+
+        /* آزمایشگاه ترکیب فانتزی (Fusion Lab) */
+        .fusion-slot-row { display: flex; justify-content: center; gap: 20px; margin: 25px 0; }
+        .fusion-slot { width: 80px; height: 80px; background: #0b0b1a; border: 2px dashed rgba(123,44,191,0.4); border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #222; position: relative; }
+        .fusion-slot.filled { border-style: solid; border-color: #00f2fe; color: #00f2fe; background: #121235; box-shadow: 0 0 20px rgba(0,242,254,0.25); }
+        .fusion-result-card { background: linear-gradient(135deg, rgba(186,83,112,0.15) 0%, rgba(20,10,30,0.4) 100%); border: 2px solid #ba5370; border-radius: 24px; padding: 25px; margin-top: 25px; text-align: center; box-shadow: 0 0 30px rgba(186,83,112,0.2); }
+
+        /* شبکه باینری زیبا شبیه پوستر */
+        .tree-container { background: #080818; border-radius: 24px; padding: 25px 15px; border: 1px solid rgba(255,255,255,0.05); text-align: center; box-shadow: inset 0 0 20px rgba(0,0,0,0.6); }
+        .node { display: inline-block; padding: 12px 18px; background: linear-gradient(135deg, #161638 0%, #0b0b1a 100%); border: 2px solid #4facfe; border-radius: 16px; font-weight: 800; font-size: 13px; min-width: 90px; box-shadow: 0 0 20px rgba(79,172,254,0.25); }
+        .tree-row { display: flex; justify-content: space-around; margin: 30px 0; position: relative; }
+        .tree-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; background: rgba(255,255,255,0.02); padding: 15px; border-radius: 16px; margin-top: 20px; border: 1px solid rgba(255,255,255,0.04); }
+
+        /* عدد های پرتابی فوق‌العاده شیک */
+        .float { position: absolute; color: #00f2fe; font-weight: 900; font-size: 32px; text-shadow: 0 0 12px rgba(0,242,254,1), 0 0 20px rgba(79,172,254,0.5); animation: floatUp 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; pointer-events: none; z-index: 9999; }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1.2) rotate(-5deg); } 100% { opacity: 0; transform: translateY(-130px) scale(0.7) rotate(5deg); } }
+    </style>
 </head>
 <body>
-    <div id="app">
-        <main id="home" class="page active">
-            <div class="header">Total Balance: <span id="balance">0.00</span> TRX</div>
-            <div class="mining-circle" onclick="mine()">
-                <img src="assets/trax_icon.png" id="trax-icon">
-                <h1 id="mining-val">0.00</h1>
+
+    <div class="header">
+        <div class="user-info">
+            <div class="avatar" id="avatarName">AM</div>
+            <div>
+                <div style="font-size:15px; font-weight:800; letter-spacing:0.3px;" id="topUsername">Ali Moosavi</div>
+                <div class="rank-badge" id="userRank">Recruit (Lv 1)</div>
             </div>
-        </main>
-        <section id="network" class="page"><h2>Binary Tree</h2><div id="tree-container"></div></section>
-        <section id="shop" class="page"><h2>Shop</h2><div id="shop-items"></div></section>
-        <section id="rankings" class="page"><h2>Rankings</h2><div id="leaderboard"></div></section>
-        <section id="profile" class="page">
-            <h2>Profile</h2>
-            <div class="profile-card">
-                <p>ID: <span id="user-id"></span></p>
-                <input type="text" id="ref-link" readonly>
-            </div>
-        </section>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px; font-weight:800; color:#f1c40f; font-size:15px;">
+            <i class="fa-solid fa-bolt" style="color:#00f2fe; filter:drop-shadow(0 0 5px #00f2fe);"></i> <span id="topBalance">0</span>
+        </div>
     </div>
-    <nav class="nav-menu">
-        <button onclick="showPage('home')">🏠<span>Home</span></button>
-        <button onclick="showPage('network')">👥<span>Network</span></button>
-        <button onclick="showPage('shop')">🛒<span>Shop</span></button>
-        <button onclick="showPage('rankings')">🏆<span>Rankings</span></button>
-        <button onclick="showPage('profile')">👤<span>Profile</span></button>
-    </nav>
-    <script src="main.js"></script>
+
+    <div id="page-home" class="page-content active">
+        <div class="balance-card">
+            <p style="color:#6c6c80; font-size:12px; font-weight:700; letter-spacing:1px;">TRAXEX DIGITAL POOL</p>
+            <div class="balance-main">🪙 <span id="balance">0</span></div>
+            <div class="ton-equivalent">≈ <span id="tonValue">0.0000</span> TON</div>
+        </div>
+
+        <div class="core-container">
+            <button class="main-core-btn" id="coreBtn" onclick="mine(event)">
+                <img src="https://img.icons8.com/isometric/512/power-plant.png" class="core-icon" alt="Core">
+            </button>
+        </div>
+
+        <div class="energy-section">
+            <div style="display:flex; justify-content:space-between; font-size:13px; color:#8e8e9f; font-weight:600;">
+                <span>⚡ Power: +<span id="miningPower">1</span> TRX/c</span>
+                <span><span id="energy">100</span> / 100</span>
+            </div>
+            <div class="progress-bar">
+                <div id="energyBar" class="progress-fill"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-shop" class="page-content">
+        <h2 style="margin-bottom:18px; font-size:22px; font-weight:800; color:#00f2fe; text-shadow:0 0 10px rgba(0,242,254,0.3);">Hardware Upgrade Center</h2>
+        <div class="items-grid">
+            <div class="item-card">
+                <img src="https://img.icons8.com/isometric/512/pickaxe.png" alt="Pickaxe">
+                <div class="item-title">Laser Pickaxe</div>
+                <div class="item-desc">+1 TRX per Click</div>
+                <button class="action-btn" onclick="buyPickaxe()">Upgrade<br><span id="shopPickaxeCost">100</span> TRX</button>
+            </div>
+            <div class="item-card">
+                <img src="https://img.icons8.com/isometric/512/box.png" alt="Storage">
+                <div class="item-title">Quantum Storage</div>
+                <div class="item-desc">Expand Pool Capacity</div>
+                <button class="action-btn" style="background:linear-gradient(135deg, #ba5370 0%, #f74c06 100%); box-shadow: 0 4px 15px rgba(247,76,6,0.3);" onclick="upgradeStorage()">Upgrade<br><span id="shopStorageCost">500</span> TRX</button>
+            </div>
+            <div class="item-card">
+                <img src="https://img.icons8.com/isometric/512/robot.png" alt="Auto Miner">
+                <div class="item-title">AI Auto Miner</div>
+                <div class="item-desc">Passive Background Mining</div>
+                <button class="action-btn" style="background:#222; color:#555; box-shadow:none;" disabled>Locked (Lv 3)</button>
+            </div>
+            <div class="item-card">
+                <img src="https://img.icons8.com/isometric/512/battery.png" alt="Energy Cell">
+                <div class="item-title">Hyper Cell</div>
+                <div class="item-desc">2x Energy Recovery</div>
+                <button class="action-btn" style="background:#222; color:#555; box-shadow:none;" disabled>Locked</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-fusion" class="page-content">
+        <h2 style="color:#ba5370; font-size:22px; font-weight:800; margin-bottom:5px; text-shadow:0 0 10px rgba(186,83,112,0.3);">Fusion Laboratory</h2>
+        <p style="color:#6c6c80; font-size:13px; margin-bottom:20px; font-weight:500;">Synthesize elite modules to skyrocket mining power.</p>
+        
+        <div class="fusion-slot-row">
+            <div class="fusion-slot filled"><i class="fa-solid fa-bolt"></i></div>
+            <div class="fusion-slot filled"><i class="fa-solid fa-box"></i></div>
+            <div class="fusion-slot"><i class="fa-solid fa-atom"></i></div>
+        </div>
+
+        <div class="fusion-result-card">
+            <h3 style="color:#f1c40f; font-size:18px; font-weight:800; margin-bottom:8px; text-shadow:0 0 10px rgba(241,196,15,0.3);">🧬 Quantum Overlord Core</h3>
+            <p style="color:#8e8e9f; font-size:12px; margin-bottom:20px; font-weight:500;">Unlocks automatically when Pickaxe & Storage reach Level 5.</p>
+            <button class="action-btn" style="background:linear-gradient(135deg, #ba5370 0%, #b06ab3 100%);" onclick="alert('Requirements not met!')">FUSE COMPONENT</button>
+        </div>
+    </div>
+
+    <div id="page-tree" class="page-content">
+        <h2 style="margin-bottom:18px; font-size:22px; font-weight:800; color:#00f2fe;">Binary Team Network</h2>
+        <div class="tree-container">
+            <div class="tree-row"><div class="node" style="border-color:#f1c40f; color:#f1c40f;">YOU</div></div>
+            <div class="tree-row">
+                <div class="node" style="color:#2ecc71; border-color:#2ecc71;">Left Branch<br><span id="leftTeamCount">0 Users</span></div>
+                <div class="node" style="color:#9b59b6; border-color:#9b59b6;">Right Branch<br><span id="rightTeamCount">0 Users</span></div>
+            </div>
+            <div class="tree-stats">
+                <div style="border-right:1px solid rgba(255,255,255,0.05);"><span style="color:#6c6c80; font-size:12px;">Left Hashrate</span><br><b style="color:#2ecc71; font-size:16px;" id="leftPoints">0</b></div>
+                <div><span style="color:#6c6c80; font-size:12px;">Right Hashrate</span><br><b style="color:#9b59b6; font-size:16px;" id="rightPoints">0</b></div>
+            </div>
+        </div>
+        <button class="action-btn" style="margin-top:25px; background:linear-gradient(135deg, #121230 0%, #171742 100%); border:1px solid #00f2fe;" onclick="copyInvite()"><i class="fa-solid fa-copy"></i> Copy Binary Referral Link</button>
+    </div>
+
+    <div id="page-profile" class="page-content">
+        <h2 style="margin-bottom:20px; font-size:22px; font-weight:800;">Command Center</h2>
+        <div class="balance-card" style="text-align:left; display:flex; flex-direction:column; gap:15px; padding:20px 25px;">
+            <div style="display:flex; justify-content:space-between;"><span style="color:#6c6c80; font-weight:600;">Telegram Node ID</span><span style="font-weight:700; color:#fff;" id="profileTgId">123456789</span></div>
+            <div style="display:flex; justify-content:space-between;"><span style="color:#6c6c80; font-weight:600;">Network Matrix Size</span><span style="font-weight:700; color:#00f2fe;" id="totalRef">0 Directs</span></div>
+            <div style="display:flex; justify-content:space-between;"><span style="color:#6c6c80; font-weight:600;">Vault Capacity</span><span style="font-weight:700; color:#f1c40f;" id="profileStorage">0 / 1000</span></div>
+        </div>
+        <button class="action-btn" style="background:linear-gradient(135deg, #0b0b20 0%, #050510 100%); border:1px solid #7b2cbf; color:#7b2cbf; box-shadow:none; margin-top:10px;" onclick="alert('TON Smart Contract Pool connection is under security audit!')">SECURE WITHDRAW (TON)</button>
+    </div>
+
+    <div class="navbar">
+        <div class="nav-item active" onclick="switchPage('home', this)"><i class="fa-solid fa-cubes"></i>Core</div>
+        <div class="nav-item" onclick="switchPage('shop', this)"><i class="fa-solid fa-store"></i>Shop</div>
+        <div class="nav-item" onclick="switchPage('fusion', this)"><i class="fa-solid fa-dna"></i>Fusion</div>
+        <div class="nav-item" onclick="switchPage('tree', this)"><i class="fa-solid fa-diagram-project"></i>Network</div>
+        <div class="nav-item" onclick="switchPage('profile', this)"><i class="fa-solid fa-sliders"></i>System</div>
+    </div>
+
+    <script>
+        // دریافت پارامترهای واقعی کاربر مستقیم از ساختار تلگرام WebApp
+        let tgUser = { id: 123456789, first_name: "Traxex User", username: "Player" };
+        let startParam = "";
+
+        if (window.Telegram && window.Telegram.WebApp) {
+            const webapp = window.Telegram.WebApp;
+            webapp.expand();
+            webapp.ready();
+            if (webapp.initDataUnsafe && webapp.initDataUnsafe.user) {
+                tgUser = webapp.initDataUnsafe.user;
+                startParam = webapp.initDataUnsafe.start_param || "";
+            }
+        }
+
+        let balance = 0, energy = 100, storageUsed = 0, pickaxeLevel = 1, pickaxePrice = 100, storageLevel = 1;
+        
+        function getStorageLimit() { return storageLevel * 1000; }
+        let defStorageCost = () => storageLevel * 500;
+
+        function switchPage(pageId, element) {
+            document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            document.getElementById('page-' + pageId).classList.add('active');
+            element.classList.add('active');
+        }
+
+        async function initGameFromServer() {
+            try {
+                let response = await fetch('/api/user/init', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ telegram_id: tgUser.id, username: tgUser.username || tgUser.first_name, inviter_id: startParam ? parseInt(startParam.split('_')[0]) : null, position: startParam ? startParam.split('_')[1] : 'left' })
+                });
+                let data = await response.json();
+                balance = data.balance; energy = data.energy; pickaxeLevel = data.pickaxe_level; storageLevel = data.storage_level; storageUsed = data.storage_used;
+                pickaxePrice = 100 * Math.pow(2, pickaxeLevel - 1);
+                
+                document.getElementById("topUsername").innerText = data.username;
+                document.getElementById("avatarName").innerText = data.username.substring(0,2).toUpperCase();
+                document.getElementById("profileTgId").innerText = data.telegram_id;
+                document.getElementById("leftPoints").innerText = data.total_left_points.toLocaleString();
+                document.getElementById("rightPoints").innerText = data.total_right_points.toLocaleString();
+                
+                updateUI();
+            } catch (error) { console.error("Server init error", error); }
+        }
+
+        async function syncWithServer(gainedPoints = 0) {
+            try {
+                await fetch('/api/user/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ telegram_id: tgUser.id, balance: balance, energy: energy, pickaxe_level: pickaxeLevel, storage_level: storageLevel, storage_used: storageUsed, gained_points: gainedPoints })
+                });
+            } catch (error) { console.error("Sync error:", error); }
+        }
+
+        function updateUI(){
+            document.getElementById("balance").innerText = balance.toLocaleString();
+            document.getElementById("topBalance").innerText = balance.toLocaleString();
+            document.getElementById("tonValue").innerText = (balance * 0.0001).toFixed(4);
+            document.getElementById("energy").innerText = energy;
+            document.getElementById("energyBar").style.width = energy + "%";
+            document.getElementById("miningPower").innerText = pickaxeLevel;
+            document.getElementById("pickaxeLevel").innerText = pickaxeLevel;
+            document.getElementById("shopPickaxeCost").innerText = pickaxePrice;
+            document.getElementById("storageLevel").innerText = storageLevel;
+            document.getElementById("shopStorageCost").innerText = defStorageCost();
+            
+            let storageStr = storageUsed + " / " + getStorageLimit();
+            document.getElementById("storageInfo").innerText = storageStr;
+            document.getElementById("profileStorage").innerText = storageStr;
+            document.getElementById("userRank").innerText = "Elite Core (Lv " + pickaxeLevel + ")";
+        }
+
+        function mine(event){
+            if(energy <= 0) return;
+            if(storageUsed >= getStorageLimit()) { alert("📦 Quantum Storage Full! Upgrade to continue."); return; }
+
+            let gain = pickaxeLevel;
+            if (storageUsed + gain > getStorageLimit()) { gain = getStorageLimit() - storageUsed; }
+
+            balance += gain; energy -= 1; storageUsed += gain;
+            updateUI();
+            createFloat(event, gain);
+            syncWithServer(gain);
+        }
+
+        function buyPickaxe(){
+            if(balance < pickaxePrice){ alert("Insufficient TRX resources."); return; }
+            balance -= pickaxePrice; pickaxeLevel += 1; pickaxePrice *= 2;
+            updateUI(); syncWithServer(0);
+        }
+
+        function upgradeStorage(){
+            let cost = defStorageCost();
+            if(balance < cost){ alert("Insufficient TRX resources."); return; }
+            balance -= cost; storageLevel += 1;
+            updateUI(); syncWithServer(0);
+        }
+
+        function copyInvite(){
+            let link = "https://t.me/YOUR_BOT_USERNAME?start=" + tgUser.id + "_left";
+            navigator.clipboard.writeText(link);
+            alert("Invite link copied! (Defaults to Left Branch)");
+        }
+
+        function createFloat(event, value){
+            let el = document.createElement("div");
+            el.className = "float"; el.innerText = "+" + value;
+            let rect = document.getElementById("coreBtn").getBoundingClientRect();
+            let x = event.clientX ? event.clientX : rect.left + rect.width/2;
+            let y = event.clientY ? event.clientY : rect.top + rect.height/2;
+            el.style.left = x + "px"; el.style.top = y + "px";
+            document.body.appendChild(el);
+            setTimeout(()=>el.remove(), 550);
+        }
+
+        setInterval(()=>{
+            if(energy < 100){ energy++; updateUI(); syncWithServer(0); }
+        }, 2000);
+
+        initGameFromServer();
+    </script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </body>
 </html>
