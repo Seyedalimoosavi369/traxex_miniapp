@@ -1,4 +1,3 @@
-cat > ~/traxex_miniapp/index.html << 'ENDOFFILE'
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,8 +20,6 @@ body{background:#0a0a1a;color:#fff;font-family:Arial,sans-serif;height:100vh;ove
 .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:5px 0;opacity:0.4;font-size:10px;transition:opacity 0.2s}
 .nav-item.active{opacity:1;color:#f0c040}
 .nav-item .icon{font-size:22px}
-
-/* HOME */
 .home-content{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
 .zeus-circle{width:200px;height:200px;border-radius:50%;border:3px solid #f0c040;background:radial-gradient(circle,#1a1a3e,#0a0a1a);overflow:hidden;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 0 40px #f0c04044;position:relative;-webkit-tap-highlight-color:transparent;margin-bottom:24px}
 .zeus-circle:active{transform:scale(0.96)}
@@ -32,12 +29,9 @@ body{background:#0a0a1a;color:#fff;font-family:Arial,sans-serif;height:100vh;ove
 .mine-label{font-size:13px;color:#888;margin-bottom:20px;text-align:center}
 .action-btns{display:flex;gap:10px}
 .btn{padding:11px 20px;border-radius:12px;border:none;font-size:14px;font-weight:bold;cursor:pointer}
-.btn-mine{background:#f0c040;color:#000}
 .btn-auto{background:#1a1a2e;color:#fff;border:1px solid #333}
 .btn-auto.on{border-color:#f0c040;color:#f0c040}
-.btn-shop{background:#1a1a2e;color:#fff;border:1px solid #333}
-
-/* NETWORK */
+.btn-boost{background:#1a1a2e;color:#fff;border:1px solid #333}
 .net-wrap{padding:16px}
 .page-title{text-align:center;font-size:17px;font-weight:bold;color:#f0c040;margin-bottom:16px}
 .net-stats{display:flex;justify-content:space-around;background:#111128;border-radius:12px;padding:14px;margin-bottom:20px}
@@ -53,8 +47,6 @@ body{background:#0a0a1a;color:#fff;font-family:Arial,sans-serif;height:100vh;ove
 .ref-box p{font-size:12px;color:#888;margin-bottom:8px}
 .ref-url{font-size:12px;color:#f0c040;word-break:break-all;margin-bottom:10px}
 .copy-btn{width:100%;background:#f0c040;color:#000;border:none;border-radius:8px;padding:10px;font-weight:bold;cursor:pointer;font-size:14px}
-
-/* SHOP */
 .shop-wrap{padding:16px}
 .shop-info{background:#111128;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:#aaa;text-align:center;line-height:1.6}
 .shop-info span{color:#f0c040;font-weight:bold}
@@ -68,9 +60,6 @@ body{background:#0a0a1a;color:#fff;font-family:Arial,sans-serif;height:100vh;ove
 .buy-btn{width:100%;padding:8px;border:none;border-radius:8px;font-weight:bold;cursor:pointer;font-size:13px}
 .buy-zeus{background:#f0c040;color:#000}
 .buy-ton{background:#0088cc;color:#fff}
-.buy-owned{background:#1a2a1a;color:#4caf80;cursor:default}
-
-/* PROFILE */
 .prof-wrap{padding:20px;display:flex;flex-direction:column;align-items:center}
 .prof-av{width:80px;height:80px;border-radius:50%;background:#1a1a2e;border:2px solid #f0c040;display:flex;align-items:center;justify-content:center;font-size:36px;margin-bottom:12px}
 .prof-name{font-size:20px;font-weight:bold;margin-bottom:4px}
@@ -82,7 +71,6 @@ body{background:#0a0a1a;color:#fff;font-family:Arial,sans-serif;height:100vh;ove
 </style>
 </head>
 <body>
-
 <div class="topbar">
   <div>
     <div class="bal" id="bal">0 ZEUS</div>
@@ -94,39 +82,26 @@ body{background:#0a0a1a;color:#fff;font-family:Arial,sans-serif;height:100vh;ove
   </div>
 </div>
 
-<!-- HOME -->
 <div class="page active" id="page-home">
   <div class="home-content">
     <div class="zeus-circle" id="tapBtn">
-      <img src="https://raw.githubusercontent.com/Seyedalimoosavi369/traxex_miniapp/main/zeus.png"
-           onerror="this.style.display='none';this.parentElement.innerHTML='⚡'">
+      <img src="https://raw.githubusercontent.com/Seyedalimoosavi369/traxex_miniapp/main/zeus.png" onerror="this.style.display='none';this.parentElement.innerHTML='⚡'">
     </div>
     <div class="mine-label" id="mineLabel">Tap to mine ZEUS tokens</div>
     <div class="action-btns">
-      <button class="btn btn-mine" onclick="doMine()">⛏ Mine</button>
       <button class="btn btn-auto" id="autoBtn" onclick="toggleAuto()">🤖 Auto</button>
-      <button class="btn btn-shop" onclick="showPage('shop')">🚀 Boost</button>
+      <button class="btn btn-boost" onclick="showPage('shop')">🚀 Boost</button>
     </div>
   </div>
 </div>
 
-<!-- NETWORK -->
 <div class="page" id="page-network">
   <div class="net-wrap">
     <div class="page-title">🌐 Network</div>
     <div class="net-stats">
-      <div class="net-stat">
-        <div class="net-stat-v" id="netL">0</div>
-        <div class="net-stat-l">Left</div>
-      </div>
-      <div class="net-stat">
-        <div class="net-stat-v" id="netT">0</div>
-        <div class="net-stat-l">Total</div>
-      </div>
-      <div class="net-stat">
-        <div class="net-stat-v" id="netR">0</div>
-        <div class="net-stat-l">Right</div>
-      </div>
+      <div class="net-stat"><div class="net-stat-v" id="netL">0</div><div class="net-stat-l">Left</div></div>
+      <div class="net-stat"><div class="net-stat-v" id="netT">0</div><div class="net-stat-l">Total</div></div>
+      <div class="net-stat"><div class="net-stat-v" id="netR">0</div><div class="net-stat-l">Right</div></div>
     </div>
     <div class="tree">
       <div class="tree-row"><div class="tnode you">👤</div></div>
@@ -149,7 +124,6 @@ body{background:#0a0a1a;color:#fff;font-family:Arial,sans-serif;height:100vh;ove
   </div>
 </div>
 
-<!-- SHOP -->
 <div class="page" id="page-shop">
   <div class="shop-wrap">
     <div class="page-title">🛒 Shop</div>
@@ -162,7 +136,6 @@ body{background:#0a0a1a;color:#fff;font-family:Arial,sans-serif;height:100vh;ove
   </div>
 </div>
 
-<!-- PROFILE -->
 <div class="page" id="page-profile">
   <div class="prof-wrap">
     <div class="prof-av">👤</div>
@@ -195,23 +168,23 @@ const API = 'https://web-production-7aada.up.railway.app';
 const BOT = 'Minerobo_bot';
 const TON_WALLET = 'UQCs20TzgI5bmr5TJo3PigiEn0DMJhWktPOw7bo27K2FVZwI';
 
-let user = tg.initDataUnsafe?.user || {id:0, first_name:'User'};
+let user = tg.initDataUnsafe?.user || {id: Date.now(), first_name:'User'};
 let urlParams = new URLSearchParams(window.location.search);
 let refId = urlParams.get('ref') || tg.initDataUnsafe?.start_param;
 
 const ITEMS = [
-  {id:1,  name:'Shadow Dagger',  hash:1},
-  {id:2,  name:'Storm Blade',    hash:2},
-  {id:3,  name:'Void Scythe',    hash:3},
-  {id:4,  name:'Nature Staff',   hash:4},
-  {id:5,  name:'Light Saber',    hash:5},
-  {id:6,  name:'Chaos Cross',    hash:6},
-  {id:7,  name:'Serpent Blade',  hash:7},
-  {id:8,  name:'Golden Sword',   hash:8},
-  {id:9,  name:'Dragon Lance',   hash:9},
-  {id:10, name:'Soul Reaper',    hash:10},
-  {id:11, name:'Titan Axe',      hash:11},
-  {id:12, name:'Zeus Bolt',      hash:12},
+  {id:1,  name:'Shadow Dagger', hash:1},
+  {id:2,  name:'Storm Blade',   hash:2},
+  {id:3,  name:'Void Scythe',   hash:3},
+  {id:4,  name:'Nature Staff',  hash:4},
+  {id:5,  name:'Light Saber',   hash:5},
+  {id:6,  name:'Chaos Cross',   hash:6},
+  {id:7,  name:'Serpent Blade', hash:7},
+  {id:8,  name:'Golden Sword',  hash:8},
+  {id:9,  name:'Dragon Lance',  hash:9},
+  {id:10, name:'Soul Reaper',   hash:10},
+  {id:11, name:'Titan Axe',     hash:11},
+  {id:12, name:'Zeus Bolt',     hash:12},
 ];
 
 let state = {
@@ -221,10 +194,10 @@ let state = {
   auto: false,
   itemLevels: {},
   leftCount: 0,
-  rightCount: 0
+  rightCount: 0,
+  initialized: false
 };
 
-// INIT - load from API
 async function initUser() {
   try {
     const res = await fetch(API + '/api/user/init', {
@@ -243,26 +216,56 @@ async function initUser() {
       state.level = data.level || 1;
       state.leftCount = data.total_left_points || 0;
       state.rightCount = data.total_right_points || 0;
-      try { state.itemLevels = JSON.parse(data.items_owned || '{}'); } catch(e) {}
+      try { state.itemLevels = JSON.parse(data.items_owned || '{}'); } catch(e) { state.itemLevels = {}; }
+      // اگه یوزر جدیده 1000 توکن بده
+      if(state.balance === 0 && Object.keys(state.itemLevels).length === 0) {
+        state.balance = 1000;
+        saveUser();
+      }
     }
-  } catch(e) {}
+  } catch(e) {
+    // اگه API نبود از localStorage بخون
+    try {
+      const saved = localStorage.getItem('zeus_' + user.id);
+      if(saved) {
+        const d = JSON.parse(saved);
+        state.balance = d.balance || 1000;
+        state.hashrate = d.hashrate || 1;
+        state.level = d.level || 1;
+        state.itemLevels = d.itemLevels || {};
+      } else {
+        state.balance = 1000;
+      }
+    } catch(e2) { state.balance = 1000; }
+  }
+  state.initialized = true;
   updateUI();
 }
 
-// SAVE to API
 async function saveUser() {
+  if(!state.initialized) return;
+  const payload = {
+    telegram_id: user.id,
+    balance: Math.floor(state.balance),
+    hashrate: state.hashrate,
+    level: state.level,
+    item_levels: JSON.stringify(state.itemLevels)
+  };
   try {
     await fetch(API + '/api/user/save', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({
-        telegram_id: user.id,
-        balance: Math.floor(state.balance),
-        hashrate: state.hashrate,
-        level: state.level,
-        item_levels: JSON.stringify(state.itemLevels)
-      })
+      body: JSON.stringify(payload)
     });
+  } catch(e) {}
+  // همیشه localStorage هم ذخیره کن backup
+  try {
+    localStorage.setItem('zeus_' + user.id, JSON.stringify({
+      balance: Math.floor(state.balance),
+      hashrate: state.hashrate,
+      level: state.level,
+      itemLevels: state.itemLevels
+    }));
   } catch(e) {}
 }
 
@@ -283,7 +286,6 @@ function updateUI() {
   document.getElementById('lvl').textContent = state.level;
 }
 
-// TAP
 document.getElementById('tapBtn').addEventListener('click', function(e) {
   state.balance += state.hashrate;
   updateUI();
@@ -297,17 +299,6 @@ document.getElementById('tapBtn').addEventListener('click', function(e) {
   setTimeout(() => el.remove(), 900);
   if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
 });
-
-function doMine() {
-  const earned = state.hashrate * 10;
-  state.balance += earned;
-  updateUI();
-  document.getElementById('mineLabel').textContent = '⚡ Mined ' + earned + ' ZEUS!';
-  setTimeout(() => {
-    document.getElementById('mineLabel').textContent = 'Tap to mine ZEUS tokens';
-  }, 2000);
-  saveUser();
-}
 
 let autoInt = null;
 let autoCount = 0;
@@ -331,14 +322,12 @@ function toggleAuto() {
   }
 }
 
-// SHOP
 function getPrice(item) {
   const lvl = state.itemLevels[item.id] || 0;
   if(lvl === 0) {
     return {type:'zeus', amount: item.id * 1000};
   } else {
-    const base = item.id;
-    const price = Math.round(base * Math.pow(1.5, lvl - 1) * 100) / 100;
+    const price = Math.round(item.id * Math.pow(1.5, lvl - 1) * 100) / 100;
     return {type:'ton', amount: price};
   }
 }
@@ -354,7 +343,6 @@ function renderShop() {
     const btnClass = price.type === 'ton' ? 'buy-btn buy-ton' : 'buy-btn buy-zeus';
     const lvlText = lvl === 0 ? 'Not owned' : 'Level ' + lvl;
     const btnText = lvl === 0 ? 'Buy' : 'Upgrade';
-
     grid.innerHTML += `
     <div class="s-item">
       <img src="${img}" onerror="this.style.fontSize='36px';this.src='';this.alt='⚔️'">
@@ -376,7 +364,7 @@ function buyItem(id) {
     tg.showConfirm(`Buy ${item.name}?\nCost: ${price.amount.toLocaleString()} ZEUS`, ok => {
       if(!ok) return;
       if(state.balance < price.amount) {
-        tg.showAlert('❌ Not enough ZEUS tokens!\nYou need ' + price.amount.toLocaleString() + ' ZEUS');
+        tg.showAlert('❌ Not enough ZEUS!\nNeed: ' + price.amount.toLocaleString());
         return;
       }
       state.balance -= price.amount;
@@ -386,18 +374,18 @@ function buyItem(id) {
       updateUI();
       renderShop();
       saveUser();
-      tg.showAlert('✅ ' + item.name + ' purchased!\n+' + item.hash + ' hash/s added');
+      tg.showAlert('✅ ' + item.name + ' purchased!\n+' + item.hash + ' hash/s');
     });
   } else {
     const lvl = state.itemLevels[id] || 0;
-    tg.showConfirm(`Upgrade ${item.name} to Level ${lvl+1}?\nCost: ${price.amount} TON`, ok => {
+    const comment = `zeus_item${id}_uid${user.id}_lv${lvl+1}`;
+    const nanotons = Math.round(price.amount * 1e9);
+    tg.showConfirm(`Upgrade ${item.name} to Level ${lvl+1}?\nCost: ${price.amount} TON\n\nYou will be redirected to your TON wallet.`, ok => {
       if(!ok) return;
-      const comment = `zeus_${id}_${user.id}_lv${lvl+1}`;
-      const nanotons = Math.round(price.amount * 1e9);
-      const tonLink = `ton://transfer/${TON_WALLET}?amount=${nanotons}&text=${comment}`;
-      tg.openLink(tonLink);
+      const tonUrl = `https://app.tonkeeper.com/transfer/${TON_WALLET}?amount=${nanotons}&text=${comment}`;
+      tg.openLink(tonUrl);
       setTimeout(() => {
-        tg.showConfirm('✅ Did you complete the TON payment?', paid => {
+        tg.showConfirm('Did you complete the TON payment?', paid => {
           if(paid) {
             state.itemLevels[id] = lvl + 1;
             state.hashrate += item.hash;
@@ -405,15 +393,14 @@ function buyItem(id) {
             updateUI();
             renderShop();
             saveUser();
-            tg.showAlert('✅ ' + item.name + ' upgraded to Level ' + (lvl+1) + '!');
+            tg.showAlert('✅ Upgraded to Level ' + (lvl+1) + '!');
           }
         });
-      }, 4000);
+      }, 5000);
     });
   }
 }
 
-// NETWORK
 function renderNetwork() {
   document.getElementById('netL').textContent = state.leftCount;
   document.getElementById('netR').textContent = state.rightCount;
@@ -430,7 +417,6 @@ function copyRef() {
   });
 }
 
-// PROFILE
 function renderProfile() {
   document.getElementById('profName').textContent = user.first_name || 'User';
   document.getElementById('profId').textContent = 'ID: ' + user.id;
@@ -442,8 +428,11 @@ function renderProfile() {
   document.getElementById('pTotal').textContent = state.leftCount + state.rightCount;
 }
 
-// Auto save every 60s
+// ذخیره هر ۶۰ ثانیه
 setInterval(saveUser, 60000);
+// ذخیره موقع بستن
+window.addEventListener('beforeunload', saveUser);
+tg.onEvent('viewportChanged', saveUser);
 
 initUser();
 </script>
