@@ -34,21 +34,14 @@ def init_user():
     telegram_id = data.get('telegram_id')
     username = data.get('username', 'User')
     ref = data.get('ref')
-
     if not telegram_id:
         return jsonify({"error": "Missing telegram_id"}), 400
-
     conn = get_db()
     user = conn.execute('SELECT * FROM users WHERE telegram_id = ?', (telegram_id,)).fetchone()
-
     if not user:
-        conn.execute('''
-            INSERT INTO users (telegram_id, username, parent_id)
-            VALUES (?, ?, ?)
-        ''', (telegram_id, username, ref))
+        conn.execute('INSERT INTO users (telegram_id, username, parent_id) VALUES (?, ?, ?)', (telegram_id, username, ref))
         conn.commit()
         user = conn.execute('SELECT * FROM users WHERE telegram_id = ?', (telegram_id,)).fetchone()
-
     result = dict(user)
     conn.close()
     return jsonify(result)
@@ -61,15 +54,11 @@ def save_user():
     hashrate = data.get('hashrate', 1)
     level = data.get('level', 1)
     item_levels = data.get('item_levels', '{}')
-
     if not telegram_id:
         return jsonify({"error": "Missing telegram_id"}), 400
-
     conn = get_db()
-    conn.execute('''
-        UPDATE users SET balance=?, hashrate=?, level=?, items_owned=?
-        WHERE telegram_id=?
-    ''', (balance, hashrate, level, str(item_levels), telegram_id))
+    conn.execute('UPDATE users SET balance=?, hashrate=?, level=?, items_owned=? WHERE telegram_id=?',
+        (balance, hashrate, level, str(item_levels), telegram_id))
     conn.commit()
     conn.close()
     return jsonify({"status": "ok"})
@@ -79,14 +68,11 @@ def get_user():
     telegram_id = request.args.get('telegram_id')
     if not telegram_id:
         return jsonify({"error": "Missing telegram_id"}), 400
-
     conn = get_db()
     user = conn.execute('SELECT * FROM users WHERE telegram_id = ?', (telegram_id,)).fetchone()
     conn.close()
-
     if not user:
         return jsonify({"error": "User not found"}), 404
-
     return jsonify(dict(user))
 
 init_db()
@@ -94,4 +80,3 @@ init_db()
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
-
