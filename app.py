@@ -74,30 +74,30 @@ def place_in_binary(conn, new_id, ref_id):
         place_in_binary(conn, new_id, ref['left_child'])
 
 
-# آپدیت کردن همه بالادستی‌ها
-def update_upline(conn, user_id, side):
-    current = user_id
+# آپدیت کردن خود رفرال‌دهنده‌ی مستقیم + همه بالادستی‌ها
+def update_upline(conn, direct_parent_id, side):
+    # شخصی که new_id رو مستقیماً زیر خودش گرفته (لول 1) - باید خودش هم حساب شه
+    pid = direct_parent_id
     level = 1
-    while current and level <= 10:
-        parent_row = conn.execute('SELECT * FROM users WHERE telegram_id=?', (current,)).fetchone()
-        if not parent_row:
-            break
-        pid = parent_row['parent_id']
-        if not pid:
-            break
+    while pid and level <= 10:
         # کمیسیون
         rate = COMMISSION_RATES.get(level, 0)
         if rate > 0:
             bonus = 10 * rate
             conn.execute('UPDATE users SET balance=balance+? WHERE telegram_id=?', (bonus, pid))
-        # آپدیت تعداد
+        # آپدیت تعداد زیرمجموعه برای همین شخص
         if side == 'left':
             conn.execute('UPDATE users SET total_left_points=total_left_points+1 WHERE telegram_id=?', (pid,))
         else:
             conn.execute('UPDATE users SET total_right_points=total_right_points+1 WHERE telegram_id=?', (pid,))
         # چک لول‌آپ
         check_levelup(conn, pid)
-        current = pid
+
+        # برو یه لول بالاتر (پدر همین pid)
+        parent_row = conn.execute('SELECT * FROM users WHERE telegram_id=?', (pid,)).fetchone()
+        if not parent_row:
+            break
+        pid = parent_row['parent_id']
         level += 1
 
 
@@ -261,9 +261,53 @@ def get_network():
     })
 
 
+ADMIN_ID = 8030373785
+
+
+# ⚠️ یکبار-مصرف: بازسازی شمارش/کمیسیون/لول روی دیتابیس فعلی از روی parent_id
+# فقط ادمین می‌تونه این رو صدا بزنه (با /api/admin/recalc?telegram_id=8030373785)
+@app.route('/api/admin/recalc', methods=['POST'])
+def admin_recalc():
+    telegram_id = request.args.get('telegram_id') or (request.json or {}).get('telegram_id')
+    if str(telegram_id) != str(ADMIN_ID):
+        return jsonify({"error": "Forbidden"}), 403
+
+    conn = get_db()
+    # صفر کردن همه‌ی فیلدهای محاسبه‌شده، بدون دست زدن به ساختار درخت (left_child/right_child/parent_id)
+    conn.execute('UPDATE users SET total_left_points=0, total_right_points=0')
+    conn.commit()
+
+    # همه‌ی یوزرها رو با ترتیب telegram_id بخون - برای هر کسی که parent_id دارد،
+    # یعنی یه نفر زیرش اضافه شده بود، پس همون رویداد رو دوباره روی upline اعمال می‌کنیم
+    all_users = conn.execute('SELECT telegram_id, parent_id, left_child, right_child FROM users').fetchall()
+
+    for row in all_users:
+        uid = row['telegram_id']
+        pid = row['parent_id']
+        if not pid:
+            continue
+        parent_row = conn.execute('SELECT left_child, right_child FROM users WHERE telegram_id=?', (pid,)).fetchone()
+        if not parent_row:
+            continue
+        if parent_row['left_child'] == uid:
+            side = 'left'
+        elif parent_row['right_child'] == uid:
+            side = 'right'
+        else:
+            continue
+        update_upline(conn, pid, side)
+
+    conn.commit()
+    users_after = conn.execute('SELECT telegram_id, total_left_points, total_right_points, balance, level FROM users').fetchall()
+    result = [dict(u) for u in users_after]
+    conn.close()
+    return jsonify({"status": "recalculated", "users": result})
+
+
 init_db()
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
+
 
